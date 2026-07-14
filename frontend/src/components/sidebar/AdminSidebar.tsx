@@ -148,47 +148,34 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onToggle, is
 
         {/* Fixed Bottom Actions (Never scrolls) */}
         <div className="shrink-0 pt-3 pb-4 border-t border-[#E2E8F0] flex flex-col gap-1 bg-white z-10 shadow-[0_-4px_12px_rgba(255,255,255,0.9)]">
-          <button 
-            title={!isOpen ? "Help" : undefined}
-            className={cn(
-              "relative flex items-center h-[48px] rounded-[10px] text-[13px] text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-all duration-200 whitespace-nowrap",
-              isOpen ? "px-3 gap-3 mx-3" : "justify-center mx-[8px] px-0"
-            )}
-          >
-            <HelpCircle className="w-[18px] h-[18px] shrink-0" strokeWidth={2} />
-            <span className={cn(
-              "transition-all duration-200 ease-out",
-              isOpen ? "opacity-100 translate-x-0 visible relative" : "opacity-0 -translate-x-2 invisible absolute pointer-events-none"
-            )}>Help</span>
-          </button>
-          
-          <button 
-            title={!isOpen ? "Documentation" : undefined}
-            className={cn(
-              "relative flex items-center h-[48px] rounded-[10px] text-[13px] text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-all duration-200 whitespace-nowrap",
-              isOpen ? "px-3 gap-3 mx-3" : "justify-center mx-[8px] px-0"
-            )}
-          >
-            <BookOpen className="w-[18px] h-[18px] shrink-0" strokeWidth={2} />
-            <span className={cn(
-              "transition-all duration-200 ease-out",
-              isOpen ? "opacity-100 translate-x-0 visible relative" : "opacity-0 -translate-x-2 invisible absolute pointer-events-none"
-            )}>Documentation</span>
-          </button>
-          
-          <button 
-            title={!isOpen ? "Support" : undefined}
-            className={cn(
-              "relative flex items-center h-[48px] rounded-[10px] text-[13px] text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-all duration-200 whitespace-nowrap",
-              isOpen ? "px-3 gap-3 mx-3" : "justify-center mx-[8px] px-0"
-            )}
-          >
-            <LifeBuoy className="w-[18px] h-[18px] shrink-0" strokeWidth={2} />
-            <span className={cn(
-              "transition-all duration-200 ease-out",
-              isOpen ? "opacity-100 translate-x-0 visible relative" : "opacity-0 -translate-x-2 invisible absolute pointer-events-none"
-            )}>Support</span>
-          </button>
+          {[
+            { label: 'Help', icon: HelpCircle, path: '/admin/help' },
+            { label: 'Documentation', icon: BookOpen, path: '/admin/docs' },
+            { label: 'Support', icon: LifeBuoy, path: '/admin/support' },
+          ].map((item) => {
+            const isActive = location.pathname === item.path
+            return (
+              <button
+                key={item.path}
+                title={!isOpen ? item.label : undefined}
+                onClick={() => {
+                  navigate(item.path)
+                  if (isMobileDrawer) onToggle()
+                }}
+                className={cn(
+                  "relative flex items-center h-[48px] rounded-[10px] text-[13px] transition-all duration-200 whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]",
+                  isOpen ? "px-3 gap-3 mx-3" : "justify-center mx-[8px] px-0",
+                  isActive ? "bg-[#EFF6FF] text-[#1E40AF] font-medium" : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]"
+                )}
+              >
+                <item.icon className="w-[18px] h-[18px] shrink-0" strokeWidth={2} />
+                <span className={cn(
+                  "transition-all duration-200 ease-out",
+                  isOpen ? "opacity-100 translate-x-0 visible relative" : "opacity-0 -translate-x-2 invisible absolute pointer-events-none"
+                )}>{item.label}</span>
+              </button>
+            )
+          })}
         </div>
       </div>
     </Drawer>

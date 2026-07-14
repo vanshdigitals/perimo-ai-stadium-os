@@ -1,70 +1,160 @@
-import React from 'react'
-import { AdminLayout } from '@/components/layouts/AdminLayout'
-import { Thermometer, Zap, Droplet } from 'lucide-react'
+import React, { useState } from 'react';
+import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { Zap, Thermometer, Droplet, Wrench, Sparkles } from 'lucide-react';
+import {
+  PageHeader,
+  StatusStrip,
+  KPICard,
+  WidgetCard,
+  AreaLineChart,
+  DataTable,
+  StatusPill,
+  FilterBar,
+  Timeline,
+} from '@/components/widgets';
+import type { TimelineEvent } from '@/components/widgets';
+
+const POWER_TREND = [38, 40, 41, 42.5, 43, 42.8, 42.5];
+const WATER_STATUS = [
+  { system: 'Domestic Supply', status: 'Nominal' as const },
+  { system: 'Fire Suppression', status: 'Nominal' as const },
+  { system: 'Irrigation (Pitch)', status: 'Nominal' as const },
+  { system: 'Grey Water Recycling', status: 'Degraded' as const },
+];
+const TONE = { Nominal: 'success', Degraded: 'warning', Offline: 'danger' } as const;
+
+interface MaintReq {
+  id: string;
+  location: string;
+  issue: string;
+  priority: 'High' | 'Medium' | 'Low';
+  status: 'Queued' | 'Dispatched' | 'Resolved';
+}
+
+const MAINTENANCE: MaintReq[] = [
+  { id: 'REQ-001', location: 'Sector 1 Restrooms', issue: 'Plumbing maintenance required', priority: 'Medium', status: 'Dispatched' },
+  { id: 'REQ-002', location: 'Sector 2 Restrooms', issue: 'Hand dryer unit offline', priority: 'Low', status: 'Queued' },
+  { id: 'REQ-003', location: 'Concourse North', issue: 'Flickering light fixtures', priority: 'Low', status: 'Queued' },
+  { id: 'REQ-004', location: 'VIP Kitchen', issue: 'Refrigeration unit temperature alarm', priority: 'High', status: 'Dispatched' },
+  { id: 'REQ-005', location: 'Gate B Turnstiles', issue: 'Turnstile #4 jammed', priority: 'High', status: 'Resolved' },
+];
+
+const PRIORITY_TONE: Record<MaintReq['priority'], 'danger' | 'warning' | 'success'> = { High: 'danger', Medium: 'warning', Low: 'success' };
+const STATUS_TONE: Record<MaintReq['status'], 'warning' | 'info' | 'success'> = { Queued: 'warning', Dispatched: 'info', Resolved: 'success' };
+
+const CLEANING_SCHEDULE: TimelineEvent[] = [
+  { id: 'cl1', time: '21:30', title: 'Concourse deep-clean — Level 1', description: 'Crew of 6, estimated 45 min.', tone: 'info' },
+  { id: 'cl2', time: '22:15', title: 'Restroom service round — All sectors', tone: 'info' },
+  { id: 'cl3', time: '20:45', title: 'Spill cleanup — Sector B Row 12', description: 'Completed by janitorial team 3.', tone: 'success' },
+  { id: 'cl4', time: '19:30', title: 'Pre-match full venue sweep', description: 'Completed ahead of gates opening.', tone: 'success' },
+];
 
 export const Facilities: React.FC = () => {
+  const [search, setSearch] = useState('');
+  const [tab, setTab] = useState('all');
+
+  const filtered = MAINTENANCE.filter((m) => {
+    const matchesSearch = !search || m.location.toLowerCase().includes(search.toLowerCase()) || m.issue.toLowerCase().includes(search.toLowerCase());
+    const matchesTab = tab === 'all' || m.status.toLowerCase() === tab;
+    return matchesSearch && matchesTab;
+  });
+
   return (
     <AdminLayout>
-      <div className="flex flex-col gap-5 mb-8">
-        <div>
-          <h1 className="font-display font-semibold text-[24px] text-[#0F172A] m-0 tracking-[-0.01em]">Facilities Management</h1>
-          <p className="text-[14px] text-[#64748B] mt-1">HVAC, power grids, sanitation, and physical infrastructure health.</p>
+      <PageHeader title="Facilities" subtitle="HVAC, power grids, water systems, and physical infrastructure health." live />
+
+      <StatusStrip
+        items={[
+          { label: 'Grid Load', value: '42.5 MW' },
+          { label: 'Avg Core Temp', value: '72°F' },
+          { label: 'Sanitation', value: 'All systems nominal' },
+          { label: 'Open Maintenance', value: '3', tone: 'warning' },
+        ]}
+      />
+
+      <div className="grid grid-cols-12 gap-5 mb-5">
+        <div className="col-span-6 lg:col-span-3">
+          <KPICard label="Grid Load" value="42.5" unit="MW" icon={Zap} iconColor="#D68A00" delta={{ value: '+1.2 MW vs baseline', direction: 'up', positive: false }} sparkline={POWER_TREND} sparklineColor="#D68A00" />
+        </div>
+        <div className="col-span-6 lg:col-span-3">
+          <KPICard label="Avg Core Temp" value="72" unit="°F" icon={Thermometer} iconColor="#C4291C" delta={{ value: 'Within target range', direction: 'flat' }} />
+        </div>
+        <div className="col-span-6 lg:col-span-3">
+          <KPICard label="Water Systems" value="3" unit="/ 4 nominal" icon={Droplet} iconColor="#2563EB" delta={{ value: 'Grey water degraded', direction: 'flat' }} />
+        </div>
+        <div className="col-span-6 lg:col-span-3">
+          <KPICard label="Maintenance Queue" value="3" unit="open" icon={Wrench} iconColor="#8B5CF6" delta={{ value: '1 high priority', direction: 'flat' }} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-12 gap-5 mb-5">
+        <div className="col-span-12 xl:col-span-4">
+          <WidgetCard title="Power Load Trend" icon={Zap} iconColor="#D68A00" className="min-h-[260px]">
+            <AreaLineChart data={POWER_TREND} labels={['18:00', '', '', '', '', '', '21:00']} color="#D68A00" valueFormatter={(v) => `${v} MW`} />
+          </WidgetCard>
+        </div>
+        <div className="col-span-12 xl:col-span-4">
+          <WidgetCard title="HVAC Zones" icon={Thermometer} iconColor="#C4291C" className="min-h-[260px]">
+            <div className="flex flex-col gap-2">
+              {['Seating Bowl', 'Concourse Levels', 'VIP Suites', 'Back of House'].map((zone, i) => (
+                <div key={zone} className="flex items-center justify-between px-3 py-2.5 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <span className="text-[13px] font-medium text-[#334155]">{zone}</span>
+                  <span className="font-mono text-[13px] text-[#0F172A]">{70 + i}°F</span>
+                </div>
+              ))}
+            </div>
+          </WidgetCard>
+        </div>
+        <div className="col-span-12 xl:col-span-4">
+          <WidgetCard title="Water Utility Status" icon={Droplet} iconColor="#2563EB" className="min-h-[260px]">
+            <div className="flex flex-col gap-2">
+              {WATER_STATUS.map((w) => (
+                <div key={w.system} className="flex items-center justify-between px-3 py-2.5 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <span className="text-[13px] font-medium text-[#334155]">{w.system}</span>
+                  <StatusPill label={w.status} tone={TONE[w.status]} dot />
+                </div>
+              ))}
+            </div>
+          </WidgetCard>
         </div>
       </div>
 
       <div className="grid grid-cols-12 gap-5">
-        <div className="col-span-12 lg:col-span-3 flex flex-col gap-5">
-          <div className="bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(0,0,0,0.02)] rounded-[16px] p-5">
-            <div className="flex items-center gap-2 text-[#64748B] text-[13px] font-medium mb-2"><Zap className="w-4 h-4 text-[#F59E0B]" /> Grid Load</div>
-            <div className="text-[24px] font-semibold text-[#0F172A]">42.5 MW</div>
-          </div>
-          <div className="bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(0,0,0,0.02)] rounded-[16px] p-5">
-            <div className="flex items-center gap-2 text-[#64748B] text-[13px] font-medium mb-2"><Thermometer className="w-4 h-4 text-[#EF4444]" /> Avg Core Temp</div>
-            <div className="text-[24px] font-semibold text-[#0F172A]">72°F</div>
-          </div>
-          <div className="bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(0,0,0,0.02)] rounded-[16px] p-5">
-            <div className="flex items-center gap-2 text-[#64748B] text-[13px] font-medium mb-2"><Droplet className="w-4 h-4 text-[#3B82F6]" /> Sanitation Status</div>
-            <div className="text-[14px] font-medium text-[#16A34A] pt-1">All systems nominal</div>
-          </div>
+        <div className="col-span-12 xl:col-span-8">
+          <WidgetCard title="Maintenance Queue" icon={Wrench} iconColor="#8B5CF6" className="min-h-[340px]">
+            <FilterBar
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Search requests..."
+              tabs={[
+                { label: 'All', value: 'all' },
+                { label: 'Queued', value: 'queued' },
+                { label: 'Dispatched', value: 'dispatched' },
+                { label: 'Resolved', value: 'resolved' },
+              ]}
+              activeTab={tab}
+              onTabChange={setTab}
+            />
+            <DataTable
+              keyField={(r) => r.id}
+              rows={filtered}
+              emptyLabel="No maintenance requests match your filters."
+              columns={[
+                { key: 'id', header: 'ID', render: (r) => <span className="font-mono text-[#64748B]">{r.id}</span>, width: '90px' },
+                { key: 'location', header: 'Location', render: (r) => r.location },
+                { key: 'issue', header: 'Issue', render: (r) => r.issue },
+                { key: 'priority', header: 'Priority', render: (r) => <StatusPill label={r.priority} tone={PRIORITY_TONE[r.priority]} />, width: '100px' },
+                { key: 'status', header: 'Status', render: (r) => <StatusPill label={r.status} tone={STATUS_TONE[r.status]} />, width: '110px' },
+              ]}
+            />
+          </WidgetCard>
         </div>
-
-        <div className="col-span-12 lg:col-span-9 min-h-[500px] bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(0,0,0,0.02)] rounded-[16px] p-5 flex flex-col">
-          <h3 className="text-[14px] font-semibold text-[#0F172A] mb-4">Infrastructure Health Map</h3>
-          <div className="flex-1 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center">
-            <p className="text-[#94A3B8] text-[13px]">BIM (Building Information Modeling) layer will render here</p>
-          </div>
-        </div>
-
-        <div className="col-span-12 bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(0,0,0,0.02)] rounded-[16px] p-5">
-           <h3 className="text-[14px] font-semibold text-[#0F172A] mb-4">Maintenance Requests</h3>
-           <div className="rounded-[10px] border border-[#E2E8F0] overflow-hidden">
-             <table className="w-full text-left text-[13px]">
-               <thead className="bg-[#F8FAFC] text-[#64748B] font-medium border-b border-[#E2E8F0]">
-                 <tr>
-                   <th className="px-4 py-3 font-medium">ID</th>
-                   <th className="px-4 py-3 font-medium">Location</th>
-                   <th className="px-4 py-3 font-medium">Issue</th>
-                   <th className="px-4 py-3 font-medium">Priority</th>
-                   <th className="px-4 py-3 font-medium">Status</th>
-                 </tr>
-               </thead>
-               <tbody className="divide-y divide-[#E2E8F0]">
-                 {[1,2,3].map(i => (
-                   <tr key={i} className="hover:bg-[#F8FAFC]">
-                     <td className="px-4 py-3 text-[#64748B]">#REQ-00{i}</td>
-                     <td className="px-4 py-3 text-[#0F172A]">Sector {i} Restrooms</td>
-                     <td className="px-4 py-3 text-[#344055]">Plumbing maintenance required</td>
-                     <td className="px-4 py-3">
-                       <span className="bg-[#FEF3C7] text-[#D97706] px-2 py-0.5 rounded-full text-[11px] font-medium">Medium</span>
-                     </td>
-                     <td className="px-4 py-3 text-[#64748B]">Dispatched</td>
-                   </tr>
-                 ))}
-               </tbody>
-             </table>
-           </div>
+        <div className="col-span-12 xl:col-span-4">
+          <WidgetCard title="Cleaning Schedule" icon={Sparkles} iconColor="#1FAA6D" className="min-h-[340px]">
+            <Timeline events={CLEANING_SCHEDULE} />
+          </WidgetCard>
         </div>
       </div>
     </AdminLayout>
-  )
-}
+  );
+};

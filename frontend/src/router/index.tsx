@@ -40,6 +40,11 @@ const Notifications = React.lazy(() => import('@/features/administration/pages/N
 const AuditLogs = React.lazy(() => import('@/features/administration/pages/AuditLogs').then(m => ({ default: m.AuditLogs })));
 const PlatformSettings = React.lazy(() => import('@/features/administration/pages/PlatformSettings').then(m => ({ default: m.PlatformSettings })));
 
+// Support Routes
+const HelpCenter = React.lazy(() => import('@/features/help/pages/HelpCenter').then(m => ({ default: m.HelpCenter })));
+const Documentation = React.lazy(() => import('@/features/documentation/pages/Documentation').then(m => ({ default: m.Documentation })));
+const Support = React.lazy(() => import('@/features/support/pages/Support').then(m => ({ default: m.Support })));
+
 const FallbackLoader = () => (
   <div className="flex h-screen w-full items-center justify-center bg-[#F8FAFC]">
     <div className="w-8 h-8 rounded-full border-4 border-[#2563EB] border-t-transparent animate-spin"></div>
@@ -90,6 +95,10 @@ export const AppRouter = () => {
           <Route path="/admin/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
           <Route path="/admin/audit-logs" element={<ProtectedRoute><AuditLogs /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute><PlatformSettings /></ProtectedRoute>} />
+
+          <Route path="/admin/help" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
+          <Route path="/admin/docs" element={<ProtectedRoute><Documentation /></ProtectedRoute>} />
+          <Route path="/admin/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
         </Routes>
       </Suspense>
     </Router>
