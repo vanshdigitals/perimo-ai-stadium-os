@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+@theme {
+  /* Brand Colors */
+  --color-brand: #1652F0;
+  --color-brand-hover: #123FC0;
+  --color-brand-dark: #0A1F44;
+  --color-brand-darkHover: #132a5c;
+
+  /* Surface Colors */
+  --color-surface: #FFFFFF;
+  --color-surface-dark: #141822;
+  --color-surface-subtle: #FAFAFB;
+  --color-surface-border: #E2E4E9;
+  --color-surface-borderDark: #232838;
+
+  /* Text Colors */
+  --color-text: #101828;
+  --color-text-muted: #5B6472;
+  --color-text-light: #F5F7FA;
+  --color-text-lightMuted: #9AA3B2;
+
+  /* Font Families */
+  --font-family-sans: 'IBM Plex Sans', sans-serif;
+  --font-family-display: 'Space Grotesk', sans-serif;
+  --font-family-mono: 'IBM Plex Mono', monospace;
+
+  /* Animations */
+  --animate-perimo-fade: perimoFadeIn 250ms ease-out;
+  --animate-perimo-spin: perimoSpin 1.15s linear infinite;
+  --animate-perimo-pulse: perimoPulse 2s ease-in-out infinite;
+
+  @keyframes perimoFadeIn {
+    0% { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes perimoSpin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes perimoPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+}
+
+@layer base {
+  body {
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--color-surface-subtle);
+    color: var(--color-text);
+    font-family: var(--font-family-sans);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Smooth UI Transitions */
+  .smooth-transition {
+    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Tabular Numerals for Live Data */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Hide Google Maps UI Elements that break the premium feel */
+  .gmnoprint, 
+  .gm-style-cc,
+  .gm-style-mtc,
+  .gm-svpc,
+  .gm-fullscreen-control,
+  .gm-bundled-control,
+  div[title="Report errors in the road map or imagery to Google"] {
+    display: none !important;
+  }
+  .gm-err-container {
+    display: none !important;
+  }
+
+  /* Enterprise Scrollbar */
+  .perimo-scrollbar {
+    -webkit-overflow-scrolling: touch;
+  }
+  .perimo-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .perimo-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .perimo-scrollbar::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 4px;
+  }
+  .perimo-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: #94A3B8;
+  }
+}
+
