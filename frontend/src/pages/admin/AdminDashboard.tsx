@@ -14,7 +14,7 @@ import { AIOperationsWidget } from '@/features/ai/components/AIOperationsWidget'
 // Level 3 — Supporting detail
 import { CriticalAlertsWidget } from '@/features/command-center/components/CriticalAlertsWidget';
 import { CrowdGatesWidget } from '@/features/command-center/components/CrowdGatesWidget';
-import { ResourceDeploymentWidget } from '@/features/command-center/components/ResourceDeploymentWidget';
+import { ResourceDeploymentPanel } from '@/features/command-center/components/ResourceDeploymentPanel';
 
 // Error boundary
 import { WidgetErrorBoundary } from '@/components/ui/WidgetErrorBoundary';
@@ -41,7 +41,7 @@ import { useLiveUpdates } from '@/features/digital-twin/hooks/useLiveUpdates';
  *   col-span-3: ResourceDeploymentWidget (~25%)
  */
 export const AdminDashboard: React.FC = () => {
-  const { gates, units } = useLiveUpdates();
+  const { gates } = useLiveUpdates();
 
   return (
     <AdminLayout>
@@ -117,7 +117,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Resource Deployment — narrowest, rightmost; "who's already on it" confirmation */}
         <div className="col-span-12 xl:col-span-3">
-          <ResourceDeploymentWidget units={units} />
+          <ResourceDeploymentPanel />
         </div>
       </div>
     </AdminLayout>

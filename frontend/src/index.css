@@ -103,3 +103,10 @@
   }
 }
 
+
+/* Utility Panel Custom Scrollbar */
+.utility-scrollbar::-webkit-scrollbar { width: 4px; }
+.utility-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.utility-scrollbar::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
+.utility-scrollbar:hover::-webkit-scrollbar-thumb { background: #CBD5E1; }
+.utility-scrollbar::-webkit-scrollbar-thumb:hover { background: #94A3B8; }

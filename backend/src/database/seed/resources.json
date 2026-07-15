@@ -1,0 +1,14 @@
+[
+  { "id": "SEC-01", "type": "security", "status": "active", "floor": "L1", "assignment": "Gate A patrol" },
+  { "id": "SEC-02", "type": "security", "status": "active", "floor": "L2", "assignment": "Concourse North" },
+  { "id": "SEC-03", "type": "security", "status": "busy", "floor": "L1", "assignment": "INC-2040" },
+  { "id": "SEC-04", "type": "security", "status": "offline", "floor": "L1", "assignment": null },
+  { "id": "MED-01", "type": "medical", "status": "busy", "floor": "L2", "assignment": "INC-2041" },
+  { "id": "MED-02", "type": "medical", "status": "active", "floor": "L1", "assignment": "First aid post A" },
+  { "id": "MED-03", "type": "medical", "status": "offline", "floor": "L3", "assignment": null },
+  { "id": "POL-01", "type": "police", "status": "active", "floor": "P1", "assignment": "Perimeter east" },
+  { "id": "POL-02", "type": "police", "status": "active", "floor": "P1", "assignment": "Perimeter west" },
+  { "id": "MNT-01", "type": "maintenance", "status": "busy", "floor": "L1", "assignment": "REQ-004 VIP Kitchen" },
+  { "id": "MNT-02", "type": "maintenance", "status": "active", "floor": "L2", "assignment": "Concourse sweep" },
+  { "id": "MNT-03", "type": "maintenance", "status": "offline", "floor": "L1", "assignment": null }
+]

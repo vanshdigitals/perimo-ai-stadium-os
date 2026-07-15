@@ -1,0 +1,31 @@
+[
+  {
+    "id": "current",
+    "power": {
+      "load_mw": 42.5,
+      "baseline_delta": "+1.2 MW vs baseline",
+      "trend": [38, 40, 41, 42.5, 43, 42.8, 42.5],
+      "labels": ["18:00", "", "", "", "", "", "21:00"]
+    },
+    "hvac_zones": [
+      { "zone": "Seating Bowl", "temp_f": 70 },
+      { "zone": "Concourse Levels", "temp_f": 71 },
+      { "zone": "VIP Suites", "temp_f": 72 },
+      { "zone": "Back of House", "temp_f": 73 }
+    ],
+    "water_systems": [
+      { "system": "Domestic Supply", "status": "Nominal" },
+      { "system": "Fire Suppression", "status": "Nominal" },
+      { "system": "Irrigation (Pitch)", "status": "Nominal" },
+      { "system": "Grey Water Recycling", "status": "Degraded" }
+    ],
+    "cleaning_schedule": [
+      { "id": "cl1", "time": "21:30", "title": "Concourse deep-clean — Level 1", "description": "Crew of 6, estimated 45 min.", "tone": "info" },
+      { "id": "cl2", "time": "22:15", "title": "Restroom service round — All sectors", "tone": "info" },
+      { "id": "cl3", "time": "20:45", "title": "Spill cleanup — Sector B Row 12", "description": "Completed by janitorial team 3.", "tone": "success" },
+      { "id": "cl4", "time": "19:30", "title": "Pre-match full venue sweep", "description": "Completed ahead of gates opening.", "tone": "success" }
+    ],
+    "summary_sanitation": "All systems nominal",
+    "summary_avg_temp_f": 72
+  }
+]

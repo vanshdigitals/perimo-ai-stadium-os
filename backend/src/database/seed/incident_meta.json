@@ -1,0 +1,29 @@
+[
+  {
+    "id": "current",
+    "teams": [
+      { "name": "Medical Unit M-04", "assigned": "INC-2041", "status": "On scene" },
+      { "name": "Security Team Alpha", "assigned": "INC-2040", "status": "En route" },
+      { "name": "K9 Unit Bravo", "assigned": "INC-2038", "status": "On scene" },
+      { "name": "Transport Ops", "assigned": "INC-2039", "status": "Monitoring" }
+    ],
+    "escalation_matrix": [
+      { "level": "Level 1", "trigger": "Single unit response", "authority": "Shift Supervisor" },
+      { "level": "Level 2", "trigger": "Multi-unit / crowd risk", "authority": "Operations Manager" },
+      { "level": "Level 3", "trigger": "Life-safety event", "authority": "Venue Director + Emergency Services" }
+    ],
+    "response_timeline": [
+      { "id": "t1", "time": "21:11", "title": "INC-2041 reported", "description": "Cardiac event flagged by section steward.", "tone": "danger" },
+      { "id": "t2", "time": "21:12", "title": "Medical unit M-04 dispatched", "description": "ETA 90 seconds.", "tone": "warning" },
+      { "id": "t3", "time": "21:14", "title": "On scene, treatment underway", "tone": "warning" },
+      { "id": "t4", "time": "21:03", "title": "INC-2040 escalated to High", "description": "Crowd density crossed 90% threshold.", "tone": "warning" },
+      { "id": "t5", "time": "20:58", "title": "INC-2039 auto-resolved by AI monitor", "tone": "success" }
+    ],
+    "insights": [
+      { "id": "i1", "title": "INC-2040 likely to escalate", "detail": "Gate C density trend suggests this incident may require a second response team within 5 minutes.", "confidence": 85, "classification": "HIGH" },
+      { "id": "i2", "title": "Pattern match: unattended bag incidents", "detail": "This is the 3rd unattended-item report in Concourse North this month — recommend signage review.", "confidence": 68, "classification": "MEDIUM" }
+    ],
+    "avg_response_time": "1m 45s",
+    "escalations_today": 2
+  }
+]

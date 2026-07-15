@@ -18,6 +18,14 @@ import {
   DEV_RESET_OTP,
   DEV_SESSION_DURATION_MS,
 } from '@/config/devAuth'
+import { bootstrapSession, endSession } from '@/platform/api/auth'
+import { tokenStore } from '@/platform/api/tokenStore'
+
+// Transient credentials captured during the login→MFA flow, used only to obtain
+// a real backend session token once MFA passes. Never persisted.
+let _pendingEmail = ''
+let _pendingPassword = ''
+let _pendingMfaCode = ''
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -115,6 +123,10 @@ export const authService = {
 
     // Successful credential check — session created after MFA
     sessionStorage.removeItem(FAILED_ATTEMPTS_KEY)
+    // Capture credentials transiently so the backend session can be bootstrapped
+    // after MFA passes (no-op if the API base URL is not configured).
+    _pendingEmail = email.trim()
+    _pendingPassword = password
     appendSecurityEvent({
       type: 'LOGIN_SUCCESS',
       description: `Credentials verified for ${email}. Awaiting MFA.`,
@@ -141,6 +153,18 @@ export const authService = {
       expiresAt: Date.now() + DEV_SESSION_DURATION_MS,
     }
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(session))
+
+    // Bootstrap a real backend session using the credentials captured during the
+    // login→MFA flow. Fire-and-forget: registered with the token store so the
+    // first authenticated API request awaits token readiness. Degrades to the
+    // dev session (no throw, no UI change) if the API is unconfigured/unreachable.
+    if (_pendingEmail && _pendingPassword && _pendingMfaCode) {
+      const boot = bootstrapSession(_pendingEmail, _pendingPassword, _pendingMfaCode)
+      tokenStore.setBootstrap(boot)
+    }
+    _pendingPassword = ''
+    _pendingMfaCode = ''
+
     appendSecurityEvent({
       type: 'NEW_DEVICE_LOGIN',
       description: `Admin session created for ${email}`,
@@ -160,6 +184,8 @@ export const authService = {
       })
     }
     sessionStorage.removeItem(SESSION_KEY)
+    // Revoke the backend refresh session and clear tokens (best-effort).
+    void endSession()
   },
 
   /** Replace with `auth.currentUser !== null` check for production. */
@@ -196,6 +222,10 @@ export const authService = {
    */
   verifyMfa(code: string): boolean {
     const valid = (DEV_MFA_CODES as readonly string[]).includes(code.trim())
+    if (valid) {
+      // Capture the code so createSession() can complete the backend MFA step.
+      _pendingMfaCode = code.trim()
+    }
     appendSecurityEvent({
       type: valid ? 'MFA_VERIFIED' : 'LOGIN_FAILED',
       description: valid ? 'MFA code verified successfully.' : 'Invalid MFA code entered.',

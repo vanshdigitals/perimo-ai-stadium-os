@@ -1,0 +1,7 @@
+[
+  { "id": "REQ-001", "location": "Sector 1 Restrooms", "issue": "Plumbing maintenance required", "priority": "Medium", "status": "Dispatched" },
+  { "id": "REQ-002", "location": "Sector 2 Restrooms", "issue": "Hand dryer unit offline", "priority": "Low", "status": "Queued" },
+  { "id": "REQ-003", "location": "Concourse North", "issue": "Flickering light fixtures", "priority": "Low", "status": "Queued" },
+  { "id": "REQ-004", "location": "VIP Kitchen", "issue": "Refrigeration unit temperature alarm", "priority": "High", "status": "Dispatched" },
+  { "id": "REQ-005", "location": "Gate B Turnstiles", "issue": "Turnstile #4 jammed", "priority": "High", "status": "Resolved" }
+]

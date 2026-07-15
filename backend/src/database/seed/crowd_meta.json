@@ -1,0 +1,16 @@
+[
+  {
+    "id": "current",
+    "occupancy_trend": [58, 61, 65, 70, 74, 79, 82, 78, 74, 68],
+    "prediction_trend": [68, 71, 76, 82, 88, 93, 95, 90, 84, 79],
+    "flow_sparkline": [210, 202, 195, 190, 188, 186, 186],
+    "projected_peak": "54,000 at 19:30",
+    "avg_flow_rate": 186,
+    "avg_flow_delta": "-4% vs baseline",
+    "insights": [
+      { "id": "c1", "title": "Gate C congestion predicted to peak at 95%", "detail": "Based on current ingress rate, Gate C concourse will hit critical density in ~8 minutes. Recommend early overflow routing.", "confidence": 89, "classification": "CRITICAL" },
+      { "id": "c2", "title": "Sector B trending toward elevated density", "detail": "Seating occupancy up 3% over the last 20 minutes — within normal halftime pattern.", "confidence": 72, "classification": "MEDIUM" },
+      { "id": "c3", "title": "North Concourse flow easing", "detail": "Density down 9% since last measurement. No action required.", "confidence": 81, "classification": "INFO" }
+    ]
+  }
+]

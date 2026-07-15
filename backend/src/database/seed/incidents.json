@@ -1,0 +1,8 @@
+[
+  { "id": "INC-2041", "title": "Medical emergency — cardiac event", "location": "Sec B Row 18", "severity": "Critical", "status": "Responding", "assigned": "Medical Unit M-04", "age": "4m" },
+  { "id": "INC-2040", "title": "Gate C overflow / crowd crush risk", "location": "Gate C", "severity": "High", "status": "Open", "assigned": "Security Team Alpha", "age": "9m" },
+  { "id": "INC-2039", "title": "Parking Zone P2 capacity exceeded", "location": "Parking P2", "severity": "Medium", "status": "Monitoring", "assigned": "Transport Ops", "age": "18m" },
+  { "id": "INC-2038", "title": "Suspicious unattended bag", "location": "Concourse North", "severity": "High", "status": "Responding", "assigned": "K9 Unit Bravo", "age": "22m" },
+  { "id": "INC-2037", "title": "Broadcast feed latency spike", "location": "Control Room", "severity": "Low", "status": "Resolved", "assigned": "IT Operations", "age": "1h" },
+  { "id": "INC-2036", "title": "Minor slip-and-fall, no injury", "location": "Sector A Concourse", "severity": "Low", "status": "Resolved", "assigned": "First Aid Team", "age": "2h" }
+]

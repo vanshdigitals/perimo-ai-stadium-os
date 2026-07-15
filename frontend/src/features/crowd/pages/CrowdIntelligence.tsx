@@ -12,29 +12,12 @@ import {
   StatusPill,
   AIInsightsPanel,
   FilterBar,
+  ErrorState,
+  KPISkeleton,
+  ChartSkeleton,
 } from '@/components/widgets';
-import type { AIInsight } from '@/components/widgets';
-
-const OCCUPANCY_TREND = [58, 61, 65, 70, 74, 79, 82, 78, 74, 68];
-const PREDICTION_TREND = [68, 71, 76, 82, 88, 93, 95, 90, 84, 79];
-
-interface ZoneRow {
-  id: string;
-  zone: string;
-  occupancy: number;
-  capacity: number;
-  trend: 'up' | 'down' | 'flat';
-  status: 'Nominal' | 'Elevated' | 'Critical';
-}
-
-const ZONES: ZoneRow[] = [
-  { id: 'z1', zone: 'Gate A Concourse', occupancy: 3100, capacity: 5000, trend: 'flat', status: 'Nominal' },
-  { id: 'z2', zone: 'Gate C Concourse', occupancy: 4620, capacity: 5000, trend: 'up', status: 'Critical' },
-  { id: 'z3', zone: 'Sector A Seating', occupancy: 12480, capacity: 13000, trend: 'flat', status: 'Nominal' },
-  { id: 'z4', zone: 'Sector B Seating', occupancy: 12100, capacity: 13000, trend: 'up', status: 'Elevated' },
-  { id: 'z5', zone: 'North Concourse', occupancy: 2870, capacity: 4500, trend: 'down', status: 'Nominal' },
-  { id: 'z6', zone: 'VIP Premium Level', occupancy: 980, capacity: 1200, trend: 'flat', status: 'Nominal' },
-];
+import { useCrowd } from '@/features/crowd/useCrowd';
+import type { ZoneRow } from '@/features/crowd/api';
 
 const STATUS_TONE: Record<ZoneRow['status'], 'success' | 'warning' | 'danger'> = {
   Nominal: 'success',
@@ -42,18 +25,44 @@ const STATUS_TONE: Record<ZoneRow['status'], 'success' | 'warning' | 'danger'> =
   Critical: 'danger',
 };
 
-const AI_INSIGHTS: AIInsight[] = [
-  { id: 'c1', title: 'Gate C congestion predicted to peak at 95%', detail: 'Based on current ingress rate, Gate C concourse will hit critical density in ~8 minutes. Recommend early overflow routing.', confidence: 89, classification: 'CRITICAL' },
-  { id: 'c2', title: 'Sector B trending toward elevated density', detail: 'Seating occupancy up 3% over the last 20 minutes — within normal halftime pattern.', confidence: 72, classification: 'MEDIUM' },
-  { id: 'c3', title: 'North Concourse flow easing', detail: 'Density down 9% since last measurement. No action required.', confidence: 81, classification: 'INFO' },
-];
-
 export const CrowdIntelligence: React.FC = () => {
   const { gates } = useLiveUpdates();
   const [search, setSearch] = useState('');
-  const totalOccupancy = ZONES.reduce((sum, z) => sum + z.occupancy, 0);
+  const { data, loading, error, refetch } = useCrowd();
 
-  const filteredZones = ZONES.filter((z) => !search || z.zone.toLowerCase().includes(search.toLowerCase()));
+  // --- Loading state ---
+  if (loading && !data) {
+    return (
+      <AdminLayout>
+        <PageHeader title="Crowd Intelligence" subtitle="Predictive density analysis, flow rates, and congestion forecasting." live />
+        <div className="grid grid-cols-12 gap-5 mb-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="col-span-6 lg:col-span-3"><KPISkeleton /></div>
+          ))}
+        </div>
+        <div className="grid grid-cols-12 gap-5 mb-5">
+          <div className="col-span-12 xl:col-span-8"><WidgetCard title="Live Density Heatmap" className="min-h-[380px]"><ChartSkeleton height={300} /></WidgetCard></div>
+          <div className="col-span-12 xl:col-span-4"><WidgetCard title="AI Congestion Prediction" className="min-h-[380px]"><ChartSkeleton height={300} /></WidgetCard></div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // --- Error state ---
+  if (error || !data) {
+    return (
+      <AdminLayout>
+        <PageHeader title="Crowd Intelligence" subtitle="Predictive density analysis, flow rates, and congestion forecasting." />
+        <WidgetCard title="Crowd Intelligence" icon={Flame} iconColor="#C4291C" className="min-h-[340px]">
+          <ErrorState message={error?.message ?? 'Crowd data is currently unavailable.'} onRetry={refetch} />
+        </WidgetCard>
+      </AdminLayout>
+    );
+  }
+
+  // --- Loaded: identical visuals, sourced from backend ---
+  const { zones, occupancy_trend, prediction_trend, flow_sparkline, insights, summary } = data;
+  const filteredZones = zones.filter((z) => !search || z.zone.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <AdminLayout>
@@ -70,25 +79,25 @@ export const CrowdIntelligence: React.FC = () => {
 
       <StatusStrip
         items={[
-          { label: 'Total Occupancy', value: totalOccupancy.toLocaleString() },
-          { label: 'Projected Peak', value: '54,000 at 19:30' },
-          { label: 'Highest Density Zone', value: 'Gate C Concourse', tone: 'critical' },
-          { label: 'Gates Tracked', value: String(gates.length || 3) },
+          { label: 'Total Occupancy', value: summary.total_occupancy.toLocaleString() },
+          { label: 'Projected Peak', value: summary.projected_peak },
+          { label: 'Highest Density Zone', value: summary.highest_density_zone, tone: 'critical' },
+          { label: 'Gates Tracked', value: String(gates.length || summary.gates_tracked) },
         ]}
       />
 
       <div className="grid grid-cols-12 gap-5 mb-5">
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Total Occupancy" value={(totalOccupancy / 1000).toFixed(1)} unit="k" icon={UsersRound} iconColor="#8B5CF6" delta={{ value: '+4.2% vs last hour', direction: 'up', positive: false }} sparkline={OCCUPANCY_TREND} sparklineColor="#8B5CF6" />
+          <KPICard label="Total Occupancy" value={(summary.total_occupancy / 1000).toFixed(1)} unit="k" icon={UsersRound} iconColor="#8B5CF6" delta={{ value: '+4.2% vs last hour', direction: 'up', positive: false }} sparkline={occupancy_trend} sparklineColor="#8B5CF6" />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Projected Peak" value="54.0" unit="k" icon={TrendingUp} iconColor="#D68A00" delta={{ value: 'Expected 19:30', direction: 'flat' }} sparkline={PREDICTION_TREND} sparklineColor="#D68A00" />
+          <KPICard label="Projected Peak" value="54.0" unit="k" icon={TrendingUp} iconColor="#D68A00" delta={{ value: 'Expected 19:30', direction: 'flat' }} sparkline={prediction_trend} sparklineColor="#D68A00" />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Congestion Zones" value="1" unit="critical" icon={Flame} iconColor="#C4291C" delta={{ value: '2 elevated', direction: 'flat' }} />
+          <KPICard label="Congestion Zones" value={String(summary.congestion_critical)} unit="critical" icon={Flame} iconColor="#C4291C" delta={{ value: `${summary.congestion_elevated} elevated`, direction: 'flat' }} />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Avg Flow Rate" value="186" unit="ppl/min" icon={MapPin} iconColor="#2563EB" delta={{ value: '-4% vs baseline', direction: 'down', positive: true }} sparkline={[210, 202, 195, 190, 188, 186, 186]} />
+          <KPICard label="Avg Flow Rate" value={String(summary.avg_flow_rate)} unit="ppl/min" icon={MapPin} iconColor="#2563EB" delta={{ value: summary.avg_flow_delta, direction: 'down', positive: true }} sparkline={flow_sparkline} />
         </div>
       </div>
 
@@ -110,7 +119,7 @@ export const CrowdIntelligence: React.FC = () => {
         </div>
         <div className="col-span-12 xl:col-span-4">
           <WidgetCard title="AI Congestion Prediction" icon={TrendingUp} iconColor="#2563EB" className="min-h-[380px]">
-            <AIInsightsPanel insights={AI_INSIGHTS} />
+            <AIInsightsPanel insights={insights} />
           </WidgetCard>
         </div>
       </div>
@@ -118,12 +127,12 @@ export const CrowdIntelligence: React.FC = () => {
       <div className="grid grid-cols-12 gap-5 mb-5">
         <div className="col-span-12 lg:col-span-6">
           <WidgetCard title="Occupancy Trend" icon={TrendingUp} iconColor="#8B5CF6" className="min-h-[260px]">
-            <AreaLineChart data={OCCUPANCY_TREND} labels={['19:00', '', '', '', '', '', '', '', '', '21:15']} color="#8B5CF6" valueFormatter={(v) => `${v}%`} />
+            <AreaLineChart data={occupancy_trend} labels={['19:00', '', '', '', '', '', '', '', '', '21:15']} color="#8B5CF6" valueFormatter={(v) => `${v}%`} />
           </WidgetCard>
         </div>
         <div className="col-span-12 lg:col-span-6">
           <WidgetCard title="Peak Analysis (Predicted)" icon={Flame} iconColor="#D68A00" className="min-h-[260px]">
-            <AreaLineChart data={PREDICTION_TREND} labels={['19:00', '', '', '', '', '', '', '', '', '21:15']} color="#D68A00" valueFormatter={(v) => `${v}%`} />
+            <AreaLineChart data={prediction_trend} labels={['19:00', '', '', '', '', '', '', '', '', '21:15']} color="#D68A00" valueFormatter={(v) => `${v}%`} />
           </WidgetCard>
         </div>
       </div>

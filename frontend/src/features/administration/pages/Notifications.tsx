@@ -1,25 +1,9 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
 import { BellRing, CheckCircle2, AlertTriangle, Info, Bell } from 'lucide-react';
-import { PageHeader, StatusStrip, KPICard, WidgetCard, FilterBar, StatusPill, EmptyState } from '@/components/widgets';
-
-interface Notif {
-  id: string;
-  title: string;
-  description: string;
-  category: 'critical' | 'warning' | 'info' | 'resolved';
-  time: string;
-  action?: string;
-}
-
-const NOTIFICATIONS: Notif[] = [
-  { id: 'n1', title: 'AI anomaly detected: unusually high flow at Gate C', description: 'Automated threshold triggered. Review the CCTV feed for Gate C to confirm.', category: 'critical', time: '2m ago', action: 'View Incident' },
-  { id: 'n2', title: 'Medical team dispatched to Sec B Row 18', description: 'Unit M-04 responding to cardiac event report.', category: 'critical', time: '4m ago', action: 'View Incident' },
-  { id: 'n3', title: 'Parking Lot P2 approaching capacity', description: 'Currently at 95% — overflow signage recommended.', category: 'warning', time: '18m ago' },
-  { id: 'n4', title: 'Weekly maintenance report available', description: 'The automated weekly maintenance report for all facilities has been generated.', category: 'info', time: '1h ago' },
-  { id: 'n5', title: 'Shift change — Security Team Alpha', description: 'Night shift signing in, 24 units confirmed on duty.', category: 'info', time: '1h ago' },
-  { id: 'n6', title: 'Network latency spike normalized', description: 'Broadcast feed latency returned to baseline after brief spike.', category: 'resolved', time: '2h ago' },
-];
+import { PageHeader, StatusStrip, KPICard, WidgetCard, FilterBar, StatusPill, EmptyState, ErrorState, RowsSkeleton } from '@/components/widgets';
+import { useNotifications } from '@/features/notifications/useNotifications';
+import { markAllNotificationsRead, type Notification } from '@/features/notifications/api';
 
 const CATEGORY_CFG = {
   critical: { icon: AlertTriangle, color: '#C4291C', bg: '#FEF2F2', tone: 'danger' as const },
@@ -31,8 +15,43 @@ const CATEGORY_CFG = {
 export const Notifications: React.FC = () => {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('all');
+  const { data, loading, error, refetch } = useNotifications();
 
-  const filtered = NOTIFICATIONS.filter((n) => {
+  const handleMarkAll = async () => {
+    try {
+      await markAllNotificationsRead();
+    } finally {
+      refetch();
+    }
+  };
+
+  if (loading && !data) {
+    return (
+      <AdminLayout>
+        <PageHeader title="Notifications" subtitle="Review system alerts, broadcast messages, and platform notifications." />
+        <div className="grid grid-cols-12 gap-5 mb-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="col-span-6 lg:col-span-3"><KPICard label="…" value="" icon={Bell} iconColor="#2563EB" /></div>
+          ))}
+        </div>
+        <WidgetCard title="All Notifications" icon={BellRing} iconColor="#64748B"><RowsSkeleton rows={6} /></WidgetCard>
+      </AdminLayout>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <AdminLayout>
+        <PageHeader title="Notifications" subtitle="Review system alerts, broadcast messages, and platform notifications." />
+        <WidgetCard title="Notifications" icon={BellRing} iconColor="#64748B" className="min-h-[300px]">
+          <ErrorState message={error?.message ?? 'Notifications are currently unavailable.'} onRetry={refetch} />
+        </WidgetCard>
+      </AdminLayout>
+    );
+  }
+
+  const { notifications, summary } = data;
+  const filtered = notifications.filter((n: Notification) => {
     const matchesSearch = !search || n.title.toLowerCase().includes(search.toLowerCase());
     const matchesTab = tab === 'all' || n.category === tab;
     return matchesSearch && matchesTab;
@@ -44,7 +63,7 @@ export const Notifications: React.FC = () => {
         title="Notifications"
         subtitle="Review system alerts, broadcast messages, and platform notifications."
         actions={
-          <button className="h-[36px] px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#475569] font-medium text-[13px] hover:bg-[#F1F5F9] transition-colors flex items-center gap-2">
+          <button onClick={handleMarkAll} className="h-[36px] px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#475569] font-medium text-[13px] hover:bg-[#F1F5F9] transition-colors flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5" /> Mark all as read
           </button>
         }
@@ -52,24 +71,24 @@ export const Notifications: React.FC = () => {
 
       <StatusStrip
         items={[
-          { label: 'Unread', value: '4', tone: 'warning' },
-          { label: 'Critical', value: '2', tone: 'critical' },
-          { label: 'Resolved Today', value: '11' },
+          { label: 'Unread', value: String(summary.unread), tone: 'warning' },
+          { label: 'Critical', value: String(summary.critical), tone: 'critical' },
+          { label: 'Resolved Today', value: String(summary.resolved_today) },
         ]}
       />
 
       <div className="grid grid-cols-12 gap-5 mb-5">
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Unread" value="4" icon={Bell} iconColor="#2563EB" delta={{ value: 'Since last visit', direction: 'flat' }} />
+          <KPICard label="Unread" value={String(summary.unread)} icon={Bell} iconColor="#2563EB" delta={{ value: 'Since last visit', direction: 'flat' }} />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Critical" value="2" icon={AlertTriangle} iconColor="#C4291C" delta={{ value: 'Requires attention', direction: 'flat' }} />
+          <KPICard label="Critical" value={String(summary.critical)} icon={AlertTriangle} iconColor="#C4291C" delta={{ value: 'Requires attention', direction: 'flat' }} />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Warnings" value="1" icon={AlertTriangle} iconColor="#D68A00" delta={{ value: 'Monitoring', direction: 'flat' }} />
+          <KPICard label="Warnings" value={String(summary.warning)} icon={AlertTriangle} iconColor="#D68A00" delta={{ value: 'Monitoring', direction: 'flat' }} />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Resolved Today" value="11" icon={CheckCircle2} iconColor="#1FAA6D" delta={{ value: '+3 vs yesterday', direction: 'up', positive: true }} />
+          <KPICard label="Resolved Today" value={String(summary.resolved_today)} icon={CheckCircle2} iconColor="#1FAA6D" delta={{ value: '+3 vs yesterday', direction: 'up', positive: true }} />
         </div>
       </div>
 

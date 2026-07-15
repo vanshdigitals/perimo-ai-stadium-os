@@ -11,49 +11,87 @@ import {
   StatusPill,
   FilterBar,
   Timeline,
+  ErrorState,
+  KPISkeleton,
+  ChartSkeleton,
+  RowsSkeleton,
 } from '@/components/widgets';
 import type { TimelineEvent } from '@/components/widgets';
+import { useFacilities } from '@/features/facilities/useFacilities';
+import type {
+  MaintenanceRequest,
+  WaterStatusValue,
+  CleaningEvent,
+} from '@/features/facilities/api';
 
-const POWER_TREND = [38, 40, 41, 42.5, 43, 42.8, 42.5];
-const WATER_STATUS = [
-  { system: 'Domestic Supply', status: 'Nominal' as const },
-  { system: 'Fire Suppression', status: 'Nominal' as const },
-  { system: 'Irrigation (Pitch)', status: 'Nominal' as const },
-  { system: 'Grey Water Recycling', status: 'Degraded' as const },
-];
-const TONE = { Nominal: 'success', Degraded: 'warning', Offline: 'danger' } as const;
+const WATER_TONE: Record<WaterStatusValue, 'success' | 'warning' | 'danger'> = {
+  Nominal: 'success',
+  Degraded: 'warning',
+  Offline: 'danger',
+};
+const PRIORITY_TONE: Record<MaintenanceRequest['priority'], 'danger' | 'warning' | 'success'> = { High: 'danger', Medium: 'warning', Low: 'success' };
+const STATUS_TONE: Record<MaintenanceRequest['status'], 'warning' | 'info' | 'success'> = { Queued: 'warning', Dispatched: 'info', Resolved: 'success' };
+const CLEANING_TONE = new Set(['info', 'success', 'warning', 'danger']);
 
-interface MaintReq {
-  id: string;
-  location: string;
-  issue: string;
-  priority: 'High' | 'Medium' | 'Low';
-  status: 'Queued' | 'Dispatched' | 'Resolved';
+function toTimelineEvents(events: CleaningEvent[]): TimelineEvent[] {
+  return events.map((e) => ({
+    id: e.id,
+    time: e.time,
+    title: e.title,
+    description: e.description ?? undefined,
+    tone: (CLEANING_TONE.has(e.tone) ? e.tone : 'info') as TimelineEvent['tone'],
+  }));
 }
-
-const MAINTENANCE: MaintReq[] = [
-  { id: 'REQ-001', location: 'Sector 1 Restrooms', issue: 'Plumbing maintenance required', priority: 'Medium', status: 'Dispatched' },
-  { id: 'REQ-002', location: 'Sector 2 Restrooms', issue: 'Hand dryer unit offline', priority: 'Low', status: 'Queued' },
-  { id: 'REQ-003', location: 'Concourse North', issue: 'Flickering light fixtures', priority: 'Low', status: 'Queued' },
-  { id: 'REQ-004', location: 'VIP Kitchen', issue: 'Refrigeration unit temperature alarm', priority: 'High', status: 'Dispatched' },
-  { id: 'REQ-005', location: 'Gate B Turnstiles', issue: 'Turnstile #4 jammed', priority: 'High', status: 'Resolved' },
-];
-
-const PRIORITY_TONE: Record<MaintReq['priority'], 'danger' | 'warning' | 'success'> = { High: 'danger', Medium: 'warning', Low: 'success' };
-const STATUS_TONE: Record<MaintReq['status'], 'warning' | 'info' | 'success'> = { Queued: 'warning', Dispatched: 'info', Resolved: 'success' };
-
-const CLEANING_SCHEDULE: TimelineEvent[] = [
-  { id: 'cl1', time: '21:30', title: 'Concourse deep-clean — Level 1', description: 'Crew of 6, estimated 45 min.', tone: 'info' },
-  { id: 'cl2', time: '22:15', title: 'Restroom service round — All sectors', tone: 'info' },
-  { id: 'cl3', time: '20:45', title: 'Spill cleanup — Sector B Row 12', description: 'Completed by janitorial team 3.', tone: 'success' },
-  { id: 'cl4', time: '19:30', title: 'Pre-match full venue sweep', description: 'Completed ahead of gates opening.', tone: 'success' },
-];
 
 export const Facilities: React.FC = () => {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('all');
+  const { data, loading, error, refetch } = useFacilities();
 
-  const filtered = MAINTENANCE.filter((m) => {
+  // --- Loading state ---
+  if (loading && !data) {
+    return (
+      <AdminLayout>
+        <PageHeader title="Facilities" subtitle="HVAC, power grids, water systems, and physical infrastructure health." live />
+        <div className="grid grid-cols-12 gap-5 mb-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="col-span-6 lg:col-span-3"><KPISkeleton /></div>
+          ))}
+        </div>
+        <div className="grid grid-cols-12 gap-5 mb-5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="col-span-12 xl:col-span-4">
+              <WidgetCard title="Loading…" className="min-h-[260px]"><ChartSkeleton height={180} /></WidgetCard>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-12 gap-5">
+          <div className="col-span-12 xl:col-span-8"><WidgetCard title="Maintenance Queue" icon={Wrench} iconColor="#8B5CF6" className="min-h-[340px]"><RowsSkeleton rows={5} /></WidgetCard></div>
+          <div className="col-span-12 xl:col-span-4"><WidgetCard title="Cleaning Schedule" icon={Sparkles} iconColor="#1FAA6D" className="min-h-[340px]"><RowsSkeleton rows={4} /></WidgetCard></div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // --- Error state ---
+  if (error || !data) {
+    return (
+      <AdminLayout>
+        <PageHeader title="Facilities" subtitle="HVAC, power grids, water systems, and physical infrastructure health." />
+        <WidgetCard title="Facilities" icon={Wrench} iconColor="#8B5CF6" className="min-h-[340px]">
+          <ErrorState message={error?.message ?? 'Facilities data is currently unavailable.'} onRetry={refetch} />
+        </WidgetCard>
+      </AdminLayout>
+    );
+  }
+
+  // --- Loaded: identical visuals, sourced from backend data ---
+  const { power, hvac_zones, water_systems, maintenance, cleaning_schedule, summary } = data;
+  const waterNominal = water_systems.filter((w) => w.status === 'Nominal').length;
+  const degradedWater = water_systems.find((w) => w.status !== 'Nominal');
+  const highPriorityOpen = maintenance.filter((m) => m.priority === 'High' && m.status !== 'Resolved').length;
+
+  const filtered = maintenance.filter((m) => {
     const matchesSearch = !search || m.location.toLowerCase().includes(search.toLowerCase()) || m.issue.toLowerCase().includes(search.toLowerCase());
     const matchesTab = tab === 'all' || m.status.toLowerCase() === tab;
     return matchesSearch && matchesTab;
@@ -65,41 +103,41 @@ export const Facilities: React.FC = () => {
 
       <StatusStrip
         items={[
-          { label: 'Grid Load', value: '42.5 MW' },
-          { label: 'Avg Core Temp', value: '72°F' },
-          { label: 'Sanitation', value: 'All systems nominal' },
-          { label: 'Open Maintenance', value: '3', tone: 'warning' },
+          { label: 'Grid Load', value: `${power.load_mw} MW` },
+          { label: 'Avg Core Temp', value: `${summary.avg_core_temp_f}°F` },
+          { label: 'Sanitation', value: summary.sanitation },
+          { label: 'Open Maintenance', value: String(summary.open_maintenance), tone: 'warning' },
         ]}
       />
 
       <div className="grid grid-cols-12 gap-5 mb-5">
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Grid Load" value="42.5" unit="MW" icon={Zap} iconColor="#D68A00" delta={{ value: '+1.2 MW vs baseline', direction: 'up', positive: false }} sparkline={POWER_TREND} sparklineColor="#D68A00" />
+          <KPICard label="Grid Load" value={String(power.load_mw)} unit="MW" icon={Zap} iconColor="#D68A00" delta={{ value: power.baseline_delta, direction: 'up', positive: false }} sparkline={power.trend} sparklineColor="#D68A00" />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Avg Core Temp" value="72" unit="°F" icon={Thermometer} iconColor="#C4291C" delta={{ value: 'Within target range', direction: 'flat' }} />
+          <KPICard label="Avg Core Temp" value={String(summary.avg_core_temp_f)} unit="°F" icon={Thermometer} iconColor="#C4291C" delta={{ value: 'Within target range', direction: 'flat' }} />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Water Systems" value="3" unit="/ 4 nominal" icon={Droplet} iconColor="#2563EB" delta={{ value: 'Grey water degraded', direction: 'flat' }} />
+          <KPICard label="Water Systems" value={String(waterNominal)} unit={`/ ${water_systems.length} nominal`} icon={Droplet} iconColor="#2563EB" delta={{ value: degradedWater ? `${degradedWater.system} degraded` : 'All nominal', direction: 'flat' }} />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Maintenance Queue" value="3" unit="open" icon={Wrench} iconColor="#8B5CF6" delta={{ value: '1 high priority', direction: 'flat' }} />
+          <KPICard label="Maintenance Queue" value={String(summary.open_maintenance)} unit="open" icon={Wrench} iconColor="#8B5CF6" delta={{ value: `${highPriorityOpen} high priority`, direction: 'flat' }} />
         </div>
       </div>
 
       <div className="grid grid-cols-12 gap-5 mb-5">
         <div className="col-span-12 xl:col-span-4">
           <WidgetCard title="Power Load Trend" icon={Zap} iconColor="#D68A00" className="min-h-[260px]">
-            <AreaLineChart data={POWER_TREND} labels={['18:00', '', '', '', '', '', '21:00']} color="#D68A00" valueFormatter={(v) => `${v} MW`} />
+            <AreaLineChart data={power.trend} labels={power.labels} color="#D68A00" valueFormatter={(v) => `${v} MW`} />
           </WidgetCard>
         </div>
         <div className="col-span-12 xl:col-span-4">
           <WidgetCard title="HVAC Zones" icon={Thermometer} iconColor="#C4291C" className="min-h-[260px]">
             <div className="flex flex-col gap-2">
-              {['Seating Bowl', 'Concourse Levels', 'VIP Suites', 'Back of House'].map((zone, i) => (
-                <div key={zone} className="flex items-center justify-between px-3 py-2.5 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <span className="text-[13px] font-medium text-[#334155]">{zone}</span>
-                  <span className="font-mono text-[13px] text-[#0F172A]">{70 + i}°F</span>
+              {hvac_zones.map((z) => (
+                <div key={z.zone} className="flex items-center justify-between px-3 py-2.5 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <span className="text-[13px] font-medium text-[#334155]">{z.zone}</span>
+                  <span className="font-mono text-[13px] text-[#0F172A]">{z.temp_f}°F</span>
                 </div>
               ))}
             </div>
@@ -108,10 +146,10 @@ export const Facilities: React.FC = () => {
         <div className="col-span-12 xl:col-span-4">
           <WidgetCard title="Water Utility Status" icon={Droplet} iconColor="#2563EB" className="min-h-[260px]">
             <div className="flex flex-col gap-2">
-              {WATER_STATUS.map((w) => (
+              {water_systems.map((w) => (
                 <div key={w.system} className="flex items-center justify-between px-3 py-2.5 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0]">
                   <span className="text-[13px] font-medium text-[#334155]">{w.system}</span>
-                  <StatusPill label={w.status} tone={TONE[w.status]} dot />
+                  <StatusPill label={w.status} tone={WATER_TONE[w.status]} dot />
                 </div>
               ))}
             </div>
@@ -151,7 +189,7 @@ export const Facilities: React.FC = () => {
         </div>
         <div className="col-span-12 xl:col-span-4">
           <WidgetCard title="Cleaning Schedule" icon={Sparkles} iconColor="#1FAA6D" className="min-h-[340px]">
-            <Timeline events={CLEANING_SCHEDULE} />
+            <Timeline events={toTimelineEvents(cleaning_schedule)} />
           </WidgetCard>
         </div>
       </div>

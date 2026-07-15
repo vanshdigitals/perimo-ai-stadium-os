@@ -12,27 +12,13 @@ import {
   StatusPill,
   FilterBar,
   AIInsightsPanel,
+  ErrorState,
+  KPISkeleton,
+  ChartSkeleton,
 } from '@/components/widgets';
-import type { TimelineEvent, AIInsight } from '@/components/widgets';
-
-interface Incident {
-  id: string;
-  title: string;
-  location: string;
-  severity: 'Critical' | 'High' | 'Medium' | 'Low';
-  status: 'Open' | 'Responding' | 'Monitoring' | 'Resolved';
-  assigned: string;
-  age: string;
-}
-
-const INCIDENTS: Incident[] = [
-  { id: 'INC-2041', title: 'Medical emergency — cardiac event', location: 'Sec B Row 18', severity: 'Critical', status: 'Responding', assigned: 'Medical Unit M-04', age: '4m' },
-  { id: 'INC-2040', title: 'Gate C overflow / crowd crush risk', location: 'Gate C', severity: 'High', status: 'Open', assigned: 'Security Team Alpha', age: '9m' },
-  { id: 'INC-2039', title: 'Parking Zone P2 capacity exceeded', location: 'Parking P2', severity: 'Medium', status: 'Monitoring', assigned: 'Transport Ops', age: '18m' },
-  { id: 'INC-2038', title: 'Suspicious unattended bag', location: 'Concourse North', severity: 'High', status: 'Responding', assigned: 'K9 Unit Bravo', age: '22m' },
-  { id: 'INC-2037', title: 'Broadcast feed latency spike', location: 'Control Room', severity: 'Low', status: 'Resolved', assigned: 'IT Operations', age: '1h' },
-  { id: 'INC-2036', title: 'Minor slip-and-fall, no injury', location: 'Sector A Concourse', severity: 'Low', status: 'Resolved', assigned: 'First Aid Team', age: '2h' },
-];
+import type { TimelineEvent } from '@/components/widgets';
+import { useIncidents } from '@/features/incidents/useIncidents';
+import type { Incident } from '@/features/incidents/api';
 
 const SEVERITY_TONE: Record<Incident['severity'], 'danger' | 'warning' | 'info' | 'success'> = {
   Critical: 'danger',
@@ -48,43 +34,61 @@ const STATUS_TONE: Record<Incident['status'], 'danger' | 'warning' | 'info' | 's
   Resolved: 'success',
 };
 
-const RESPONSE_TIMELINE: TimelineEvent[] = [
-  { id: 't1', time: '21:11', title: 'INC-2041 reported', description: 'Cardiac event flagged by section steward.', tone: 'danger' },
-  { id: 't2', time: '21:12', title: 'Medical unit M-04 dispatched', description: 'ETA 90 seconds.', tone: 'warning' },
-  { id: 't3', time: '21:14', title: 'On scene, treatment underway', tone: 'warning' },
-  { id: 't4', time: '21:03', title: 'INC-2040 escalated to High', description: 'Crowd density crossed 90% threshold.', tone: 'warning' },
-  { id: 't5', time: '20:58', title: 'INC-2039 auto-resolved by AI monitor', tone: 'success' },
-];
-
-const TEAMS = [
-  { name: 'Medical Unit M-04', assigned: 'INC-2041', status: 'On scene' },
-  { name: 'Security Team Alpha', assigned: 'INC-2040', status: 'En route' },
-  { name: 'K9 Unit Bravo', assigned: 'INC-2038', status: 'On scene' },
-  { name: 'Transport Ops', assigned: 'INC-2039', status: 'Monitoring' },
-];
-
-const ESCALATION_MATRIX = [
-  { level: 'Level 1', trigger: 'Single unit response', authority: 'Shift Supervisor' },
-  { level: 'Level 2', trigger: 'Multi-unit / crowd risk', authority: 'Operations Manager' },
-  { level: 'Level 3', trigger: 'Life-safety event', authority: 'Venue Director + Emergency Services' },
-];
-
-const AI_INSIGHTS: AIInsight[] = [
-  { id: 'i1', title: 'INC-2040 likely to escalate', detail: 'Gate C density trend suggests this incident may require a second response team within 5 minutes.', confidence: 85, classification: 'HIGH' },
-  { id: 'i2', title: 'Pattern match: unattended bag incidents', detail: 'This is the 3rd unattended-item report in Concourse North this month — recommend signage review.', confidence: 68, classification: 'MEDIUM' },
-];
+const TEAM_TONE = (status: string): 'warning' | 'info' | 'success' =>
+  status === 'On scene' ? 'warning' : status === 'En route' ? 'info' : 'success';
 
 export const IncidentCenter: React.FC = () => {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('all');
+  const { data, loading, error, refetch } = useIncidents();
 
-  const filtered = INCIDENTS.filter((inc) => {
+  // --- Loading state ---
+  if (loading && !data) {
+    return (
+      <AdminLayout>
+        <PageHeader title="Incident Center" subtitle="Triage, dispatch, and resolve venue incidents in one queue." live />
+        <div className="grid grid-cols-12 gap-5 mb-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="col-span-6 lg:col-span-3"><KPISkeleton /></div>
+          ))}
+        </div>
+        <div className="grid grid-cols-12 gap-5 mb-5">
+          <div className="col-span-12 xl:col-span-8"><WidgetCard title="Incident Queue" icon={Siren} iconColor="#C4291C" className="min-h-[420px]"><ChartSkeleton height={320} /></WidgetCard></div>
+          <div className="col-span-12 xl:col-span-4"><WidgetCard title="Severity Distribution" className="min-h-[420px]"><ChartSkeleton height={320} /></WidgetCard></div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // --- Error state ---
+  if (error || !data) {
+    return (
+      <AdminLayout>
+        <PageHeader title="Incident Center" subtitle="Triage, dispatch, and resolve venue incidents in one queue." />
+        <WidgetCard title="Incident Center" icon={Siren} iconColor="#C4291C" className="min-h-[340px]">
+          <ErrorState message={error?.message ?? 'Incident data is currently unavailable.'} onRetry={refetch} />
+        </WidgetCard>
+      </AdminLayout>
+    );
+  }
+
+  // --- Loaded ---
+  const { incidents, teams, escalation_matrix, response_timeline, insights, severity_distribution, summary } = data;
+  const openCount = summary.open_count;
+
+  const filtered = incidents.filter((inc) => {
     const matchesSearch = !search || inc.title.toLowerCase().includes(search.toLowerCase()) || inc.location.toLowerCase().includes(search.toLowerCase());
     const matchesTab = tab === 'all' || inc.status.toLowerCase() === tab;
     return matchesSearch && matchesTab;
   });
 
-  const openCount = INCIDENTS.filter((i) => i.status !== 'Resolved').length;
+  const timelineEvents: TimelineEvent[] = response_timeline.map((e) => ({
+    id: e.id,
+    time: e.time,
+    title: e.title,
+    description: e.description ?? undefined,
+    tone: e.tone as TimelineEvent['tone'],
+  }));
 
   return (
     <AdminLayout>
@@ -102,9 +106,9 @@ export const IncidentCenter: React.FC = () => {
       <StatusStrip
         items={[
           { label: 'Open Incidents', value: String(openCount), tone: 'warning' },
-          { label: 'Critical', value: '1', tone: 'critical' },
-          { label: 'Avg Response Time', value: '1m 45s' },
-          { label: 'Teams Deployed', value: '4' },
+          { label: 'Critical', value: String(summary.critical_count), tone: 'critical' },
+          { label: 'Avg Response Time', value: summary.avg_response_time },
+          { label: 'Teams Deployed', value: String(summary.teams_deployed) },
         ]}
       />
 
@@ -113,13 +117,13 @@ export const IncidentCenter: React.FC = () => {
           <KPICard label="Open Incidents" value={String(openCount)} icon={Siren} iconColor="#C4291C" delta={{ value: '2 opened in last hour', direction: 'up', positive: false }} />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Avg Response Time" value="1m 45s" icon={Clock} iconColor="#D68A00" delta={{ value: '-12s vs avg', direction: 'down', positive: true }} sparkline={[135, 128, 120, 112, 108, 105, 105]} sparklineColor="#D68A00" />
+          <KPICard label="Avg Response Time" value={summary.avg_response_time} icon={Clock} iconColor="#D68A00" delta={{ value: '-12s vs avg', direction: 'down', positive: true }} sparkline={[135, 128, 120, 112, 108, 105, 105]} sparklineColor="#D68A00" />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Teams Deployed" value="4" unit="/ 12" icon={Users} iconColor="#2563EB" delta={{ value: '8 available', direction: 'flat' }} />
+          <KPICard label="Teams Deployed" value={String(summary.teams_deployed)} unit="/ 12" icon={Users} iconColor="#2563EB" delta={{ value: '8 available', direction: 'flat' }} />
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Escalations Today" value="2" icon={ShieldAlert} iconColor="#8B5CF6" delta={{ value: 'Both resolved within SLA', direction: 'flat' }} />
+          <KPICard label="Escalations Today" value={String(summary.escalations_today)} icon={ShieldAlert} iconColor="#8B5CF6" delta={{ value: 'Both resolved within SLA', direction: 'flat' }} />
         </div>
       </div>
 
@@ -168,14 +172,14 @@ export const IncidentCenter: React.FC = () => {
               centerLabel="Active"
               centerValue={String(openCount)}
               data={[
-                { label: 'Critical', value: 1, color: '#C4291C' },
-                { label: 'High', value: 2, color: '#D68A00' },
-                { label: 'Medium', value: 1, color: '#2563EB' },
-                { label: 'Low', value: 2, color: '#1FAA6D' },
+                { label: 'Critical', value: severity_distribution.critical, color: '#C4291C' },
+                { label: 'High', value: severity_distribution.high, color: '#D68A00' },
+                { label: 'Medium', value: severity_distribution.medium, color: '#2563EB' },
+                { label: 'Low', value: severity_distribution.low, color: '#1FAA6D' },
               ]}
             />
             <div className="mt-5">
-              <AIInsightsPanel insights={AI_INSIGHTS} />
+              <AIInsightsPanel insights={insights} />
             </div>
           </WidgetCard>
         </div>
@@ -184,19 +188,19 @@ export const IncidentCenter: React.FC = () => {
       <div className="grid grid-cols-12 gap-5">
         <div className="col-span-12 lg:col-span-5">
           <WidgetCard title="Response Timeline" icon={Clock} iconColor="#2563EB" className="min-h-[280px]">
-            <Timeline events={RESPONSE_TIMELINE} />
+            <Timeline events={timelineEvents} />
           </WidgetCard>
         </div>
         <div className="col-span-12 lg:col-span-4">
           <WidgetCard title="Assigned Teams" icon={Users} iconColor="#1FAA6D" className="min-h-[280px]">
             <div className="flex flex-col gap-2">
-              {TEAMS.map((t) => (
+              {teams.map((t) => (
                 <div key={t.name} className="flex items-center justify-between px-3 py-2.5 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0]">
                   <div>
                     <div className="text-[13px] font-medium text-[#334155]">{t.name}</div>
                     <div className="text-[11px] text-[#94A3B8]">{t.assigned}</div>
                   </div>
-                  <StatusPill label={t.status} tone={t.status === 'On scene' ? 'warning' : t.status === 'En route' ? 'info' : 'success'} />
+                  <StatusPill label={t.status} tone={TEAM_TONE(t.status)} />
                 </div>
               ))}
             </div>
@@ -205,7 +209,7 @@ export const IncidentCenter: React.FC = () => {
         <div className="col-span-12 lg:col-span-3">
           <WidgetCard title="Escalation Matrix" icon={ShieldAlert} iconColor="#C4291C" className="min-h-[280px]">
             <div className="flex flex-col gap-3">
-              {ESCALATION_MATRIX.map((e) => (
+              {escalation_matrix.map((e) => (
                 <div key={e.level} className="pb-3 border-b border-[#E2E8F0] last:border-0 last:pb-0">
                   <div className="text-[12px] font-semibold text-[#0F172A]">{e.level}</div>
                   <div className="text-[11px] text-[#64748B] mt-0.5">{e.trigger}</div>

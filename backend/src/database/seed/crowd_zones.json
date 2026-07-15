@@ -1,0 +1,8 @@
+[
+  { "id": "z1", "zone": "Gate A Concourse", "occupancy": 3100, "capacity": 5000, "trend": "flat", "status": "Nominal" },
+  { "id": "z2", "zone": "Gate C Concourse", "occupancy": 4620, "capacity": 5000, "trend": "up", "status": "Critical" },
+  { "id": "z3", "zone": "Sector A Seating", "occupancy": 12480, "capacity": 13000, "trend": "flat", "status": "Nominal" },
+  { "id": "z4", "zone": "Sector B Seating", "occupancy": 12100, "capacity": 13000, "trend": "up", "status": "Elevated" },
+  { "id": "z5", "zone": "North Concourse", "occupancy": 2870, "capacity": 4500, "trend": "down", "status": "Nominal" },
+  { "id": "z6", "zone": "VIP Premium Level", "occupancy": 980, "capacity": 1200, "trend": "flat", "status": "Nominal" }
+]

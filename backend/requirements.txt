@@ -6,6 +6,11 @@ pydantic-settings>=2.2,<3.0
 # Gemini SDK. Imported lazily and only used when GEMINI_API_KEY is set,
 # so the app (and the whole test-suite) runs fully offline without it.
 google-generativeai>=0.5,<1.0
+# JWT access/refresh tokens (pure-python, no build step).
+pyjwt>=2.8,<3.0
+# Firestore SDK. Imported lazily and only used when FIRESTORE_PROJECT_ID (or the
+# emulator host) is set; the app falls back to an in-memory seeded store offline.
+google-cloud-firestore>=2.16,<3.0
 
 # --- Testing / tooling ---
 httpx>=0.27,<1.0          # used by starlette.testclient.TestClient

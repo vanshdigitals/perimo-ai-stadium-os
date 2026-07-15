@@ -1,0 +1,8 @@
+[
+  { "id": "n1", "title": "AI anomaly detected: unusually high flow at Gate C", "description": "Automated threshold triggered. Review the CCTV feed for Gate C to confirm.", "category": "critical", "time": "2m ago", "read": false, "action": "View Incident" },
+  { "id": "n2", "title": "Medical team dispatched to Sec B Row 18", "description": "Unit M-04 responding to cardiac event report.", "category": "critical", "time": "4m ago", "read": false, "action": "View Incident" },
+  { "id": "n3", "title": "Parking Lot P2 approaching capacity", "description": "Currently at 95% — overflow signage recommended.", "category": "warning", "time": "18m ago", "read": false },
+  { "id": "n4", "title": "Weekly maintenance report available", "description": "The automated weekly maintenance report for all facilities has been generated.", "category": "info", "time": "1h ago", "read": false },
+  { "id": "n5", "title": "Shift change — Security Team Alpha", "description": "Night shift signing in, 24 units confirmed on duty.", "category": "info", "time": "1h ago", "read": true },
+  { "id": "n6", "title": "Network latency spike normalized", "description": "Broadcast feed latency returned to baseline after brief spike.", "category": "resolved", "time": "2h ago", "read": true }
+]

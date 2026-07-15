@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AdminSidebar } from '@/components/sidebar/AdminSidebar'
 import { AdminHeader } from '@/components/header/AdminHeader'
-import { UtilityPanel } from '@/components/utility-panel/UtilityPanel'
+import { UtilityPanel } from '@/features/utility-panel/components/UtilityPanel'
 import { Backdrop } from '@/components/navigation/Backdrop'
 import { authService } from '@/features/auth/services/authService'
 
@@ -19,9 +19,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [utilityOpen, setUtilityOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
+  const [isTablet, setIsTablet] = useState(false)
+
   // Handle window resize for mobile state
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024)
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024)
+    }
     handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
@@ -59,11 +64,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       <AdminSidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(false)}
-        isMobileDrawer={isMobile}
+        isMobileDrawer={isMobile || isTablet}
       />
       <UtilityPanel
         isOpen={utilityOpen}
         onClose={() => setUtilityOpen(false)}
+        isMobile={isMobile}
+        isTablet={isTablet}
       />
 
       {/* Main Content */}

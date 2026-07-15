@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
-import { Radio, Power, Wifi, Thermometer, Droplets, Camera, Download, ChevronRight } from 'lucide-react';
+import { Radio, Power, Wifi, Thermometer, Droplets, Camera, Download, ChevronRight, RefreshCcw, Activity } from 'lucide-react';
+import { useLiveUpdates } from '@/features/digital-twin/hooks/useLiveUpdates';
 import {
   PageHeader,
   StatusStrip,
@@ -13,67 +14,21 @@ import {
   DataTable,
   StatusPill,
   FilterBar,
+  ErrorState,
+  KPISkeleton,
+  ChartSkeleton,
 } from '@/components/widgets';
-import type { TimelineEvent, AIInsight } from '@/components/widgets';
+import { useLiveOps } from '@/features/live-ops/useLiveOps';
 
-const SYSTEMS = [
-  { label: 'Power Grid', value: 'Nominal', icon: Power, tone: 'success' as const },
-  { label: 'Network Backbone', value: '99.8% Uptime', icon: Wifi, tone: 'success' as const },
-  { label: 'HVAC', value: '72°F Avg', icon: Thermometer, tone: 'success' as const },
-  { label: 'Water Systems', value: 'Nominal', icon: Droplets, tone: 'success' as const },
-  { label: 'Camera Network', value: '244 / 245 Online', icon: Camera, tone: 'warning' as const },
-];
+const SYSTEM_ICONS: Record<string, React.ElementType> = {
+  'Power Grid': Power,
+  'Network Backbone': Wifi,
+  'HVAC': Thermometer,
+  'Water Systems': Droplets,
+  'Camera Network': Camera,
+};
 
-const CROWD_ZONES = [
-  { label: 'Gate A', value: 62 },
-  { label: 'Gate B', value: 48 },
-  { label: 'Gate C', value: 92, highlight: true },
-  { label: 'Gate D', value: 55 },
-  { label: 'Concourse N', value: 71 },
-  { label: 'Concourse S', value: 38 },
-];
-
-const EVENT_FEED: TimelineEvent[] = [
-  { id: 'e1', time: '21:14:02', title: 'Gate C flow rate exceeded 90% capacity', description: 'AI flagged overflow risk; recommendation issued to Operations.', tone: 'danger' },
-  { id: 'e2', time: '21:11:40', title: 'Medical team dispatched', description: 'Unit M-04 en route to Sec B Row 18.', tone: 'warning' },
-  { id: 'e3', time: '21:08:15', title: 'Camera CAM-112 reconnected', description: 'Concourse South feed restored after 40s dropout.', tone: 'success' },
-  { id: 'e4', time: '21:02:51', title: 'Shift handover completed', description: 'Night security shift (Team Bravo) signed in, 24 units.', tone: 'info' },
-  { id: 'e5', time: '20:58:03', title: 'Parking Lot P2 reached 98% capacity', description: 'Overflow vehicles redirected to Lot P3.', tone: 'warning' },
-  { id: 'e6', time: '20:47:19', title: 'Weather advisory cleared', description: 'Wind speed dropped below threshold; roof status normal.', tone: 'success' },
-];
-
-const OPERATOR_LOG: TimelineEvent[] = [
-  { id: 'o1', time: '21:15', title: 'A. Romero acknowledged Gate C alert', tone: 'info' },
-  { id: 'o2', time: '21:12', title: 'P. Nair dispatched medical unit M-04', tone: 'info' },
-  { id: 'o3', time: '21:05', title: 'S. Ibrahim approved AI recommendation #482', tone: 'success' },
-  { id: 'o4', time: '20:59', title: 'M. Chen rerouted shuttle line 3', tone: 'info' },
-];
-
-const AI_INSIGHTS: AIInsight[] = [
-  { id: 'a1', title: 'Overflow risk at Gate C', detail: 'Crowd density trending toward 95%+ within 6 minutes. Recommend opening overflow lane 2.', confidence: 91, classification: 'CRITICAL' },
-  { id: 'a2', title: 'Concourse South foot traffic easing', detail: 'Density down 12% since kickoff. No action required.', confidence: 84, classification: 'INFO' },
-  { id: 'a3', title: 'Camera outage pattern detected', detail: 'CAM-112 has dropped 3 times this week around 21:00 — recommend maintenance ticket.', confidence: 77, classification: 'MEDIUM' },
-];
-
-interface EventRow {
-  id: string;
-  time: string;
-  system: string;
-  event: string;
-  severity: 'Critical' | 'Warning' | 'Info' | 'Resolved';
-}
-
-const RECENT_EVENTS: EventRow[] = [
-  { id: 'ev-1', time: '21:14:02', system: 'Crowd Intelligence', event: 'Gate C flow rate exceeded 90% capacity', severity: 'Critical' },
-  { id: 'ev-2', time: '21:11:40', system: 'Medical', event: 'Medical team dispatched to Sec B Row 18', severity: 'Warning' },
-  { id: 'ev-3', time: '21:08:15', system: 'Security', event: 'Camera CAM-112 reconnected', severity: 'Resolved' },
-  { id: 'ev-4', time: '21:02:51', system: 'Personnel', event: 'Shift handover completed — Team Bravo', severity: 'Info' },
-  { id: 'ev-5', time: '20:58:03', system: 'Transportation', event: 'Parking Lot P2 reached 98% capacity', severity: 'Warning' },
-  { id: 'ev-6', time: '20:47:19', system: 'Facilities', event: 'Weather advisory cleared', severity: 'Resolved' },
-  { id: 'ev-7', time: '20:31:07', system: 'Network', event: 'WebSocket latency spike (180ms) auto-recovered', severity: 'Resolved' },
-];
-
-const SEVERITY_TONE: Record<EventRow['severity'], 'danger' | 'warning' | 'info' | 'success'> = {
+const SEVERITY_TONE: Record<string, 'danger' | 'warning' | 'info' | 'success'> = {
   Critical: 'danger',
   Warning: 'warning',
   Info: 'info',
@@ -84,11 +39,25 @@ export const LiveOperations: React.FC = () => {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('all');
 
-  const filteredEvents = RECENT_EVENTS.filter((e) => {
-    const matchesSearch = !search || e.event.toLowerCase().includes(search.toLowerCase()) || e.system.toLowerCase().includes(search.toLowerCase());
-    const matchesTab = tab === 'all' || e.severity.toLowerCase() === tab;
+  const { data, isLoading, error } = useLiveOps();
+
+  // Subscribe to liveops events
+  useLiveUpdates();
+
+  if (error) {
+    return (
+      <AdminLayout>
+        <PageHeader title="Live Operations" subtitle="Real-time command view across every stadium system." />
+        <ErrorState message={error.message} onRetry={() => window.location.reload()} />
+      </AdminLayout>
+    );
+  }
+
+  const filteredEvents = data?.recent_events?.filter((e) => {
+    const matchesSearch = !search || e.event?.toLowerCase().includes(search.toLowerCase()) || e.system?.toLowerCase().includes(search.toLowerCase());
+    const matchesTab = tab === 'all' || e.severity?.toLowerCase() === tab;
     return matchesSearch && matchesTab;
-  });
+  }) || [];
 
   return (
     <AdminLayout>
@@ -103,52 +72,74 @@ export const LiveOperations: React.FC = () => {
         }
       />
 
-      <StatusStrip
-        items={[
-          { label: 'Match Status', value: 'In Progress — 68\'' },
-          { label: 'Attendance', value: '81,414 (98%)' },
-          { label: 'Active Incidents', value: '3', tone: 'warning' },
-          { label: 'Operators On Duty', value: '42' },
-          { label: 'Weather', value: '22°C Clear' },
-        ]}
-      />
+      {isLoading ? (
+        <div className="flex items-center gap-3 mb-6 px-1">
+          <RefreshCcw className="w-5 h-5 text-[#94A3B8] animate-spin" />
+          <span className="text-[#64748B] text-sm">Loading live metrics...</span>
+        </div>
+      ) : (
+        <StatusStrip
+          items={[
+            { label: 'Match Status', value: data?.summary.match_status! },
+            { label: 'Attendance', value: data?.summary.attendance! },
+            { label: 'Active Incidents', value: data?.summary.active_incidents.toString()!, tone: data?.summary.active_incidents! > 0 ? 'warning' : 'nominal' },
+            { label: 'Operators On Duty', value: data?.summary.operators_on_duty.toString()! },
+            { label: 'Weather', value: data?.summary.weather! },
+          ]}
+        />
+      )}
 
       <div className="grid grid-cols-12 gap-5 mb-5">
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Gates Open" value="18" unit="/ 20" icon={Radio} iconColor="#2563EB" delta={{ value: '2 closed for maintenance', direction: 'flat' }} sparkline={[16, 17, 18, 18, 19, 18, 18]} />
+          {isLoading ? <KPISkeleton /> : (
+            <KPICard label="Gates Open" value={data?.summary.gates_open.toString()!} unit={`/ ${data?.summary.gates_total}`} icon={Radio} iconColor="#2563EB" delta={{ value: `${data?.summary.gates_total! - data?.summary.gates_open!} closed`, direction: 'flat' }} sparkline={[16, 17, 18, 18, 19, 18, data?.summary.gates_open!]} />
+          )}
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Avg Wait Time" value="4.2" unit="min" icon={Radio} iconColor="#D68A00" delta={{ value: '-0.8 min vs last hour', direction: 'down', positive: true }} sparkline={[6, 5.8, 5.2, 4.9, 4.5, 4.3, 4.2]} sparklineColor="#D68A00" />
+          {isLoading ? <KPISkeleton /> : (
+            <KPICard label="Avg Wait Time" value={data?.summary.avg_wait_time.toString()!} unit="min" icon={Radio} iconColor="#D68A00" delta={{ value: 'Live tracking', direction: 'flat' }} sparkline={[6, 5.8, 5.2, 4.9, 4.5, 4.3, data?.summary.avg_wait_time!]} sparklineColor="#D68A00" />
+          )}
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Crowd Density" value="68" unit="%" icon={Radio} iconColor="#8B5CF6" delta={{ value: '+6% vs 15 min ago', direction: 'up', positive: false }} sparkline={[52, 55, 58, 61, 64, 66, 68]} sparklineColor="#8B5CF6" />
+          {isLoading ? <KPISkeleton /> : (
+            <KPICard label="Crowd Density" value={data?.summary.crowd_density_pct.toString()!} unit="%" icon={Radio} iconColor="#8B5CF6" delta={{ value: 'Live tracking', direction: 'flat' }} sparkline={[52, 55, 58, 61, 64, 66, data?.summary.crowd_density_pct!]} sparklineColor="#8B5CF6" />
+          )}
         </div>
         <div className="col-span-6 lg:col-span-3">
-          <KPICard label="Active Cameras" value="244" unit="/ 245" icon={Radio} iconColor="#1FAA6D" delta={{ value: '1 offline — CAM-112', direction: 'flat' }} sparkline={[245, 245, 244, 245, 244, 244, 244]} sparklineColor="#1FAA6D" />
+          {isLoading ? <KPISkeleton /> : (
+            <KPICard label="Active Cameras" value={data?.summary.active_cameras.toString()!} unit={`/ ${data?.summary.total_cameras}`} icon={Radio} iconColor="#1FAA6D" delta={{ value: `${data?.summary.total_cameras! - data?.summary.active_cameras!} offline`, direction: 'flat' }} sparkline={[245, 245, 244, 245, 244, 244, data?.summary.active_cameras!]} sparklineColor="#1FAA6D" />
+          )}
         </div>
       </div>
 
       <div className="grid grid-cols-12 gap-5 mb-5">
         <div className="col-span-12 xl:col-span-8">
           <WidgetCard title="Live Event Feed" icon={Radio} iconColor="#2563EB" live actions={<WidgetHeaderButton icon={ChevronRight} label="View all" />} className="min-h-[420px]">
-            <div className="max-h-[360px] overflow-y-auto pr-1">
-              <Timeline events={EVENT_FEED} />
-            </div>
+            {isLoading ? <ChartSkeleton height={360} /> : (
+              <div className="max-h-[360px] overflow-y-auto pr-1">
+                <Timeline events={data?.event_feed || []} />
+              </div>
+            )}
           </WidgetCard>
         </div>
         <div className="col-span-12 xl:col-span-4">
           <WidgetCard title="Stadium Health" icon={Power} iconColor="#1FAA6D" className="min-h-[420px]">
-            <div className="flex flex-col gap-2">
-              {SYSTEMS.map((s) => (
-                <div key={s.label} className="flex items-center justify-between px-3 py-2.5 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <span className="flex items-center gap-2.5 text-[13px] font-medium text-[#334155]">
-                    <s.icon className="w-4 h-4 text-[#64748B]" strokeWidth={2} />
-                    {s.label}
-                  </span>
-                  <StatusPill label={s.value} tone={s.tone} dot />
-                </div>
-              ))}
-            </div>
+            {isLoading ? <ChartSkeleton height={360} /> : (
+              <div className="flex flex-col gap-2">
+                {data?.systems.map((s) => {
+                  const Icon = SYSTEM_ICONS[s.label] || Activity;
+                  return (
+                    <div key={s.label} className="flex items-center justify-between px-3 py-2.5 rounded-[10px] bg-[#F8FAFC] border border-[#E2E8F0]">
+                      <span className="flex items-center gap-2.5 text-[13px] font-medium text-[#334155]">
+                        <Icon className="w-4 h-4 text-[#64748B]" strokeWidth={2} />
+                        {s.label}
+                      </span>
+                      <StatusPill label={s.value} tone={s.tone} dot />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </WidgetCard>
         </div>
       </div>
@@ -156,17 +147,23 @@ export const LiveOperations: React.FC = () => {
       <div className="grid grid-cols-12 gap-5 mb-5">
         <div className="col-span-12 lg:col-span-4">
           <WidgetCard title="Crowd Overview" icon={Radio} iconColor="#8B5CF6" className="min-h-[300px]">
-            <BarChart data={CROWD_ZONES} maxValue={100} highlightColor="#8B5CF6" valueFormatter={(v) => `${v}%`} />
+            {isLoading ? <ChartSkeleton height={240} /> : (
+              <BarChart data={data?.crowd_zones || []} maxValue={100} highlightColor="#8B5CF6" valueFormatter={(v) => `${v}%`} />
+            )}
           </WidgetCard>
         </div>
         <div className="col-span-12 lg:col-span-4">
           <WidgetCard title="AI Recommendations" icon={Radio} iconColor="#2563EB" className="min-h-[300px]">
-            <AIInsightsPanel insights={AI_INSIGHTS} />
+            {isLoading ? <ChartSkeleton height={240} /> : (
+              <AIInsightsPanel insights={data?.insights || []} />
+            )}
           </WidgetCard>
         </div>
         <div className="col-span-12 lg:col-span-4">
           <WidgetCard title="Operator Activity" icon={Radio} iconColor="#64748B" className="min-h-[300px]">
-            <Timeline events={OPERATOR_LOG} />
+            {isLoading ? <ChartSkeleton height={240} /> : (
+              <Timeline events={data?.operator_log || []} />
+            )}
           </WidgetCard>
         </div>
       </div>
@@ -185,17 +182,19 @@ export const LiveOperations: React.FC = () => {
           activeTab={tab}
           onTabChange={setTab}
         />
-        <DataTable
-          keyField={(r) => r.id}
-          rows={filteredEvents}
-          emptyLabel="No events match your filters."
-          columns={[
-            { key: 'time', header: 'Time', render: (r) => <span className="font-mono text-[#64748B]">{r.time}</span>, width: '100px' },
-            { key: 'system', header: 'System', render: (r) => r.system, width: '160px' },
-            { key: 'event', header: 'Event', render: (r) => r.event },
-            { key: 'severity', header: 'Status', render: (r) => <StatusPill label={r.severity} tone={SEVERITY_TONE[r.severity]} />, width: '110px' },
-          ]}
-        />
+        {isLoading ? <ChartSkeleton height={200} /> : (
+          <DataTable
+            keyField={(r) => r.id}
+            rows={filteredEvents}
+            emptyLabel="No events match your filters."
+            columns={[
+              { key: 'time', header: 'Time', render: (r) => <span className="font-mono text-[#64748B]">{r.time}</span>, width: '100px' },
+              { key: 'system', header: 'System', render: (r) => r.system, width: '160px' },
+              { key: 'event', header: 'Event', render: (r) => r.event },
+              { key: 'severity', header: 'Status', render: (r) => <StatusPill label={r.severity || 'Info'} tone={SEVERITY_TONE[r.severity!] || 'info'} />, width: '110px' },
+            ]}
+          />
+        )}
       </WidgetCard>
     </AdminLayout>
   );
