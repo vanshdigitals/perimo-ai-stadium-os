@@ -104,6 +104,18 @@ def wire_eventbus(event_bus: EventBus) -> None:
 @router.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket) -> None:
     """WebSocket endpoint — accepts subscribe/unsubscribe/ping messages."""
+    token = ws.query_params.get("token")
+    if not token:
+        await ws.close(code=1008)
+        return
+    auth_service = ws.app.state.auth_service
+    try:
+        user = auth_service.current_user(token)
+    except Exception as e:
+        print(f"WebSocket Auth Error: {e}")
+        await ws.close(code=1008)
+        return
+
     await registry.connect(ws)
     try:
         while True:

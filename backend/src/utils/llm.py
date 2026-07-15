@@ -64,18 +64,14 @@ class MockLLM(LLMClient):
 class GeminiClient(LLMClient):
     """Google Gemini client used only when an API key is configured.
 
-    The blocking SDK call is offloaded to a thread so the async endpoint is not
-    blocked, and any failure degrades gracefully to the templated answer.
+    Uses the robust GeminiServiceManager for failover, retry, and circuit breaker.
     """
 
     is_live = True
 
     def __init__(self, settings: Settings) -> None:
-        # Imported lazily so the package is only required when actually used.
-        import google.generativeai as genai
-
-        genai.configure(api_key=settings.gemini_api_key)
-        self._model = genai.GenerativeModel(settings.gemini_model)
+        from src.platform.ai.manager import GeminiServiceManager
+        self._manager = GeminiServiceManager(settings)
         self._generation_config = {
             "max_output_tokens": settings.gemini_max_output_tokens,
             "temperature": 0.3,
@@ -103,13 +99,12 @@ class GeminiClient(LLMClient):
             + "\n</user_question>"
         )
         try:
-            response = await asyncio.to_thread(
-                self._model.generate_content,
+            # using the robust manager instead of direct sdk call
+            text = await self._manager.generate_content(
                 prompt,
-                # dict form is accepted by the SDK at runtime (GenerationConfigDict).
-                generation_config=self._generation_config,  # type: ignore[arg-type]
+                generation_config=self._generation_config,
             )
-            text = (getattr(response, "text", "") or "").strip()
+            text = text.strip() if text else ""
             return text or render_answer(ctx)
         except Exception:  # noqa: BLE001 — never fail the request over phrasing
             logger.warning("Gemini phrasing failed; falling back to templated answer.")

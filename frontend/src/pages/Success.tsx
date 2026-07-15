@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
+import { authService } from '@/features/auth/services/authService'
 
 const SUCCESS_META: Record<string, { title: string; body: string; cta: string; action: string }> = {
   'fan-login': { title: 'Welcome back', body: 'You are signed in as a Fan. Enjoy the tournament.', cta: 'Enter Perimo', action: 'enter' },
@@ -23,7 +24,12 @@ export const Success: React.FC = () => {
     if (meta.action === 'toLogin') {
       navigate(-1)
     } else {
-      navigate('/')
+      const user = authService.getCurrentUser()
+      if (user?.role === 'fan') navigate('/fan')
+      else if (user?.role === 'staff') navigate('/staff')
+      else if (user?.role === 'volunteer') navigate('/volunteer')
+      else if (user?.role === 'admin') navigate('/admin')
+      else navigate('/')
     }
   }
 

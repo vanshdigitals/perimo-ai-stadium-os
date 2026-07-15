@@ -42,6 +42,7 @@ class Settings(BaseSettings):
 
     # --- Gemini (optional; absence triggers the MockLLM fallback) ---
     gemini_api_key: str | None = Field(default=None, description="Google Gemini API key.")
+    backup_gemini_api_key: str | None = Field(default=None, description="Backup Google Gemini API key.")
     gemini_model: str = Field(default="gemini-1.5-flash")
     gemini_max_output_tokens: int = Field(default=256, ge=16, le=2048)
 

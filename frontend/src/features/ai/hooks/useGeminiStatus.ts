@@ -1,35 +1,53 @@
 import { useEffect, useState } from 'react';
-import { geminiServiceManager } from '../services/gemini';
-import type { FailoverEvent } from '../services/gemini';
+import { apiClient } from '../../../platform/api/client';
 
 /**
- * Surfaces transient, user-safe status text for the AI Copilot UI — e.g.
- * "Retrying...", "Recovered successfully.", "AI Copilot is temporarily
- * unavailable." — driven entirely by GeminiServiceManager's event stream.
- * The UI never learns which API key is in use, only these pre-approved
- * generic messages.
+ * Surfaces transient, user-safe status text for the AI Copilot UI.
+ * Driven by the backend AI Copilot health endpoint.
  */
 export const useGeminiStatus = (): string | null => {
   const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    let clearTimer: ReturnType<typeof setTimeout> | undefined;
+    let mounted = true;
+    let timer: ReturnType<typeof setTimeout>;
 
-    const unsubscribe = geminiServiceManager.subscribe((event: FailoverEvent) => {
-      setStatus(event.message);
-      clearTimeout(clearTimer);
-      // Terminal states (recovered / exhausted) are transient banners; fade
-      // them out after a few seconds instead of leaving stale text on screen.
-      if (event.type === 'recovered' || event.type === 'unavailable') {
-        clearTimer = setTimeout(() => setStatus(null), 4000);
+    const checkHealth = async () => {
+      try {
+        const res = await apiClient.get<{ status: string }>('/v1/copilot/health');
+        if (!mounted) return;
+        
+        if (res.status === 'failing') {
+          setStatus('AI Copilot is temporarily unavailable.');
+        } else if (res.status === 'degraded') {
+          setStatus('Retrying AI Copilot connection...');
+        } else {
+          // If status is healthy but we previously had an error, we can briefly show a message
+          if (status === 'Retrying AI Copilot connection...') {
+            setStatus('Recovered successfully.');
+            setTimeout(() => { if (mounted) setStatus(null); }, 4000);
+          } else if (status !== 'Recovered successfully.') {
+            setStatus(null);
+          }
+        }
+      } catch (error) {
+        if (mounted) {
+           setStatus('AI Copilot is temporarily unavailable.');
+        }
       }
-    });
+
+      if (mounted) {
+        timer = setTimeout(checkHealth, 10000); // Check every 10s
+      }
+    };
+
+    checkHealth();
 
     return () => {
-      clearTimeout(clearTimer);
-      unsubscribe();
+      mounted = false;
+      clearTimeout(timer);
     };
-  }, []);
+  }, [status]);
 
   return status;
 };

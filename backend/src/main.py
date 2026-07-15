@@ -26,7 +26,11 @@ from src.domains.notifications.router import router as notifications_router
 from src.domains.resources.router import router as resources_router
 from src.domains.transportation.router import router as transport_router
 from src.domains.live_ops.router import router as live_ops_router
+from src.domains.copilot.router import router as copilot_router
 from src.platform.websocket.gateway import router as ws_router, wire_eventbus
+from src.platform.audit.service import wire_audit
+from src.platform.analytics.service import wire_analytics
+from src.platform.monitoring.service import monitoring_service
 from src.schemas.user_context import (
     AccessibilityNeed,
     AssistResponse,
@@ -120,8 +124,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.transport_service = container.transport_service
     app.state.live_ops_service = container.live_ops_service
 
-    # Wire event bus → WebSocket fan-out
+    # Wire event bus → WebSocket fan-out, Audit, Analytics
     wire_eventbus(container.event_bus)
+    wire_audit(container.event_bus)
+    wire_analytics(container.event_bus)
 
     # --- Wayfinding kernel singletons (retained from V1) ---
     app.state.stadium = get_stadium()
@@ -162,6 +168,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def health() -> HealthResponse:
         return HealthResponse(status="ok")
 
+    @app.get("/monitoring", tags=["system"])
+    async def get_monitoring():
+        return monitoring_service.get_system_health()
+
+    @app.get("/analytics", tags=["system"])
+    async def get_analytics():
+        from src.platform.analytics.service import analytics_service
+        return analytics_service.get_analytics()
+
+    @app.get("/audit", tags=["system"])
+    async def get_audit():
+        from src.platform.audit.service import audit_service
+        return audit_service.get_logs()
+
     @app.get("/ready", tags=["system"])
     async def ready(request: Request) -> dict:
         store_kind = type(request.app.state.store).__name__
@@ -181,6 +201,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(resources_router, prefix=api)
     app.include_router(transport_router, prefix=api)
     app.include_router(live_ops_router, prefix=api)
+    app.include_router(copilot_router, prefix=api + "/copilot")
     app.include_router(ws_router, prefix=api)
 
     # --- Wayfinding kernel routes (retained) ---

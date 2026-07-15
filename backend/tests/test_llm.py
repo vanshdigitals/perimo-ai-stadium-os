@@ -43,6 +43,9 @@ def _install_fake_genai(monkeypatch, generate):
         def generate_content(self, prompt, generation_config=None):
             return generate(prompt)
 
+        async def generate_content_async(self, prompt, generation_config=None):
+            return generate(prompt)
+
     fake.configure = lambda **kwargs: None
     fake.GenerativeModel = GenerativeModel
     monkeypatch.setitem(sys.modules, "google.generativeai", fake)

@@ -4,6 +4,7 @@ import { BaseAuthPage } from '../shared/BaseAuthPage'
 import { Input } from '@/components/ui/Input'
 import { PasswordInput } from '@/components/ui/PasswordInput'
 import { Button } from '@/components/ui/Button'
+import { authService } from '@/features/auth/services/authService'
 
 export const VolunteerAuth: React.FC = () => {
   const navigate = useNavigate()
@@ -23,6 +24,18 @@ export const VolunteerAuth: React.FC = () => {
     }
     
     setErrorMsg(undefined)
+    
+    const email = (form.elements.namedItem('email') as HTMLInputElement)?.value || 'volunteer@perimo.io'
+    const password = (form.elements.namedItem('password') as HTMLInputElement)?.value || 'dummy'
+    
+    const result = authService.loginDemo(email, password)
+    if (!result.success) {
+      setErrorMsg('Invalid credentials.')
+      return
+    }
+    
+    authService.createSession(email, 'volunteer')
+    
     navigate('/auth/success', { state: { kind: 'volunteer-login' } })
   }
 
@@ -38,6 +51,18 @@ export const VolunteerAuth: React.FC = () => {
     }
     
     setErrorMsg(undefined)
+    
+    const email = (form.elements.namedItem('email') as HTMLInputElement)?.value || 'volunteer@perimo.io'
+    const password = (form.elements.namedItem('password') as HTMLInputElement)?.value || 'dummy'
+    
+    const result = authService.loginDemo(email, password)
+    if (!result.success) {
+      setErrorMsg('Invalid credentials.')
+      return
+    }
+    
+    authService.createSession(email, 'volunteer')
+    
     navigate('/auth/success', { state: { kind: 'volunteer-firstTime' } })
   }
 

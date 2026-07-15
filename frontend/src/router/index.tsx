@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // We import a few critical immediate-load components (loaders, common layouts)
 import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
+import { RoleProtectedRoute } from '@/features/auth/components/RoleProtectedRoute';
 
 // Lazy loading all pages/views to drastically reduce initial bundle size!
 const RoleSelection = React.lazy(() => import('@/pages/RoleSelection').then(m => ({ default: m.RoleSelection })));
@@ -44,6 +45,22 @@ const PlatformSettings = React.lazy(() => import('@/features/administration/page
 const HelpCenter = React.lazy(() => import('@/features/help/pages/HelpCenter').then(m => ({ default: m.HelpCenter })));
 const Documentation = React.lazy(() => import('@/features/documentation/pages/Documentation').then(m => ({ default: m.Documentation })));
 const Support = React.lazy(() => import('@/features/support/pages/Support').then(m => ({ default: m.Support })));
+
+// Fan Routes
+const FanDashboard = React.lazy(() => import('@/pages/fan/FanDashboard').then(m => ({ default: m.FanDashboard })));
+const FanMap = React.lazy(() => import('@/pages/fan/FanMap').then(m => ({ default: m.FanMap })));
+const FanTransport = React.lazy(() => import('@/pages/fan/FanTransport').then(m => ({ default: m.FanTransport })));
+const FanFacilities = React.lazy(() => import('@/pages/fan/FanFacilities').then(m => ({ default: m.FanFacilities })));
+
+// Staff Routes
+const StaffDashboard = React.lazy(() => import('@/pages/staff/StaffDashboard').then(m => ({ default: m.StaffDashboard })));
+const StaffIncidents = React.lazy(() => import('@/pages/staff/StaffIncidents').then(m => ({ default: m.StaffIncidents })));
+const StaffMap = React.lazy(() => import('@/pages/staff/StaffMap').then(m => ({ default: m.StaffMap })));
+
+// Volunteer Routes
+const VolunteerDashboard = React.lazy(() => import('@/pages/volunteer/VolunteerDashboard').then(m => ({ default: m.VolunteerDashboard })));
+const VolunteerReport = React.lazy(() => import('@/pages/volunteer/VolunteerReport').then(m => ({ default: m.VolunteerReport })));
+const VolunteerMap = React.lazy(() => import('@/pages/volunteer/VolunteerMap').then(m => ({ default: m.VolunteerMap })));
 
 const FallbackLoader = () => (
   <div className="flex h-screen w-full items-center justify-center bg-[#F8FAFC]">
@@ -99,6 +116,22 @@ export const AppRouter = () => {
           <Route path="/admin/help" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
           <Route path="/admin/docs" element={<ProtectedRoute><Documentation /></ProtectedRoute>} />
           <Route path="/admin/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+
+          {/* ── Protected Fan Routes ──────────────────────────────── */}
+          <Route path="/fan" element={<RoleProtectedRoute allowedRoles={['fan']}><FanDashboard /></RoleProtectedRoute>} />
+          <Route path="/fan/map" element={<RoleProtectedRoute allowedRoles={['fan']}><FanMap /></RoleProtectedRoute>} />
+          <Route path="/fan/transportation" element={<RoleProtectedRoute allowedRoles={['fan']}><FanTransport /></RoleProtectedRoute>} />
+          <Route path="/fan/facilities" element={<RoleProtectedRoute allowedRoles={['fan']}><FanFacilities /></RoleProtectedRoute>} />
+
+          {/* ── Protected Staff Routes ────────────────────────────── */}
+          <Route path="/staff" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffDashboard /></RoleProtectedRoute>} />
+          <Route path="/staff/incidents" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffIncidents /></RoleProtectedRoute>} />
+          <Route path="/staff/map" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffMap /></RoleProtectedRoute>} />
+
+          {/* ── Protected Volunteer Routes ────────────────────────── */}
+          <Route path="/volunteer" element={<RoleProtectedRoute allowedRoles={['volunteer']}><VolunteerDashboard /></RoleProtectedRoute>} />
+          <Route path="/volunteer/report" element={<RoleProtectedRoute allowedRoles={['volunteer']}><VolunteerReport /></RoleProtectedRoute>} />
+          <Route path="/volunteer/map" element={<RoleProtectedRoute allowedRoles={['volunteer']}><VolunteerMap /></RoleProtectedRoute>} />
         </Routes>
       </Suspense>
     </Router>

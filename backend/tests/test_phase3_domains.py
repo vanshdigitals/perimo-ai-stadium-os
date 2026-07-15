@@ -34,11 +34,15 @@ def client() -> TestClient:
 
 
 @pytest.fixture
-def auth_headers(client: TestClient) -> dict[str, str]:
+def auth_token(client: TestClient) -> str:
     r = client.post("/v1/auth/login", json={"email": _EMAIL, "password": _PASSWORD})
     challenge = r.json()["challenge_token"]
     r2 = client.post("/v1/auth/mfa/verify", json={"challenge_token": challenge, "code": "123456"})
-    return {"Authorization": f"Bearer {r2.json()['access_token']}"}
+    return r2.json()['access_token']
+
+@pytest.fixture
+def auth_headers(auth_token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {auth_token}"}
 
 
 # ---------- Event Bus ---------------------------------------------------------
@@ -147,14 +151,14 @@ class TestLiveOps:
 # ---------- WebSocket Gateway -------------------------------------------------
 
 class TestWebSocket:
-    def test_ws_connect_and_ping(self, client: TestClient) -> None:
-        with client.websocket_connect("/v1/ws") as ws:
+    def test_ws_connect_and_ping(self, client: TestClient, auth_token: str) -> None:
+        with client.websocket_connect(f"/v1/ws?token={auth_token}") as ws:
             ws.send_text(json.dumps({"action": "ping"}))
             data = ws.receive_json()
             assert data == {"ack": "pong"}
 
-    def test_ws_subscribe_and_unsubscribe(self, client: TestClient) -> None:
-        with client.websocket_connect("/v1/ws") as ws:
+    def test_ws_subscribe_and_unsubscribe(self, client: TestClient, auth_token: str) -> None:
+        with client.websocket_connect(f"/v1/ws?token={auth_token}") as ws:
             ws.send_text(json.dumps({"action": "subscribe", "rooms": ["crowd", "incidents"]}))
             data = ws.receive_json()
             assert data["ack"] == "subscribed"
@@ -164,14 +168,14 @@ class TestWebSocket:
             data = ws.receive_json()
             assert data["ack"] == "unsubscribed"
 
-    def test_ws_unknown_action_returns_error(self, client: TestClient) -> None:
-        with client.websocket_connect("/v1/ws") as ws:
+    def test_ws_unknown_action_returns_error(self, client: TestClient, auth_token: str) -> None:
+        with client.websocket_connect(f"/v1/ws?token={auth_token}") as ws:
             ws.send_text(json.dumps({"action": "bogus"}))
             data = ws.receive_json()
             assert "error" in data
 
-    def test_ws_invalid_json_returns_error(self, client: TestClient) -> None:
-        with client.websocket_connect("/v1/ws") as ws:
+    def test_ws_invalid_json_returns_error(self, client: TestClient, auth_token: str) -> None:
+        with client.websocket_connect(f"/v1/ws?token={auth_token}") as ws:
             ws.send_text("not valid json{{{")
             data = ws.receive_json()
             assert "error" in data

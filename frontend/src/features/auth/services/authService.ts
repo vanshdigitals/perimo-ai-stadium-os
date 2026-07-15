@@ -29,11 +29,11 @@ let _pendingMfaCode = ''
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface AdminUser {
+export interface SessionUser {
   uid: string
   email: string
   displayName: string
-  role: 'admin'
+  role: 'admin' | 'fan' | 'staff' | 'volunteer'
   loginAt: string
 }
 
@@ -137,15 +137,30 @@ export const authService = {
   },
 
   /**
+   * Generic login for roles that don't enforce strict dev credentials (demo).
+   */
+  loginDemo(email: string, password: string): LoginResult {
+    // For demo purposes, any non-empty credential works for fan/staff/volunteer
+    if (!email || !password) {
+       return { success: false, error: 'INVALID_CREDENTIALS' }
+    }
+    _pendingEmail = email.trim()
+    _pendingPassword = password
+    // Bypass MFA for demo roles
+    _pendingMfaCode = '000000'
+    return { success: true }
+  },
+
+  /**
    * Finalise session after MFA passes.
    * Replace body with Firebase ID token storage for production.
    */
-  createSession(email: string): void {
-    const user: AdminUser = {
+  createSession(email: string, role: 'admin' | 'fan' | 'staff' | 'volunteer' = 'admin'): void {
+    const user: SessionUser = {
       uid: `dev-${generateId()}`,
       email,
-      displayName: 'Stadium Administrator',
-      role: 'admin',
+      displayName: role === 'admin' ? 'Stadium Administrator' : `${role.charAt(0).toUpperCase() + role.slice(1)} User`,
+      role,
       loginAt: now(),
     }
     const session = {
@@ -167,7 +182,7 @@ export const authService = {
 
     appendSecurityEvent({
       type: 'NEW_DEVICE_LOGIN',
-      description: `Admin session created for ${email}`,
+      description: `${role} session created for ${email}`,
       severity: 'info',
       metadata: { email },
     })
@@ -201,11 +216,11 @@ export const authService = {
   },
 
   /** Replace with `auth.currentUser` for production. */
-  getCurrentUser(): AdminUser | null {
+  getCurrentUser(): SessionUser | null {
     try {
       const raw = sessionStorage.getItem(SESSION_KEY)
       if (!raw) return null
-      const session = JSON.parse(raw) as { user: AdminUser; expiresAt: number }
+      const session = JSON.parse(raw) as { user: SessionUser; expiresAt: number }
       if (Date.now() >= session.expiresAt) {
         sessionStorage.removeItem(SESSION_KEY)
         return null

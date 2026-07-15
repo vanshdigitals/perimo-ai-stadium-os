@@ -8,6 +8,8 @@ import { PasswordInput } from '@/components/ui/PasswordInput'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
 
+import { authService } from '@/features/auth/services/authService'
+
 export const FanAuth: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -28,6 +30,19 @@ export const FanAuth: React.FC = () => {
     }
     
     setErrorMsg(undefined)
+    
+    // Use demo login for fan (accepts any non-empty input)
+    const email = (form.elements.namedItem('email') as HTMLInputElement)?.value || 'fan@perimo.io'
+    const password = (form.elements.namedItem('password') as HTMLInputElement)?.value || 'dummy'
+    
+    const result = authService.loginDemo(email, password)
+    if (!result.success) {
+      setErrorMsg('Invalid credentials.')
+      return
+    }
+    
+    authService.createSession(email, 'fan')
+    
     navigate('/auth/success', { state: { kind: isRegister ? 'fan-register' : 'fan-login' } })
   }
 

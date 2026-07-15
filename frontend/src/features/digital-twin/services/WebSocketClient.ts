@@ -1,5 +1,4 @@
 import type { WebSocketMessage } from '../types';
-import { startMockSimulator, stopMockSimulator } from './MockSimulator';
 
 type MessageHandler = (message: WebSocketMessage) => void;
 type StatusHandler = (status: 'connected' | 'disconnected' | 'mock') => void;
@@ -11,7 +10,6 @@ class WebSocketClient {
   private statusHandlers: Set<StatusHandler> = new Set();
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 3;
-  private isUsingMock = false;
   private connectionCount = 0;
 
   constructor(url: string = import.meta.env.VITE_WSS_ENDPOINT || 'wss://localhost/ws') {
@@ -21,49 +19,52 @@ class WebSocketClient {
   connect() {
     this.connectionCount++;
     if (this.connectionCount > 1) return;
-    if (this.isUsingMock) return;
 
     try {
-      this.socket = new WebSocket(this.url);
+      // Lazy import to avoid circular dependency
+      import('../../../platform/api/tokenStore').then(({ tokenStore }) => {
+        const token = tokenStore.getAccess();
+        const wsUrl = token ? `${this.url}?token=${token}` : this.url;
+        this.socket = new WebSocket(wsUrl);
 
-      this.socket.onopen = () => {
-        this.reconnectAttempts = 0;
-        this.notifyStatus('connected');
-      };
+        this.socket.onopen = () => {
+          this.reconnectAttempts = 0;
+          this.notifyStatus('connected');
+          this.socket?.send(JSON.stringify({
+            action: 'subscribe',
+            rooms: ['twin', 'incidents', 'notifications', 'resources', 'transport', 'system', 'crowd']
+          }));
+        };
 
-      this.socket.onmessage = (event) => {
-        try {
-          const data: WebSocketMessage = JSON.parse(event.data);
-          this.notifyHandlers(data);
-        } catch (e) {
-          console.error('[WSS] Parse error', e);
-        }
-      };
+        this.socket.onmessage = (event) => {
+          try {
+            const data: WebSocketMessage = JSON.parse(event.data);
+            this.notifyHandlers(data);
+          } catch (e) {
+            console.error('[WSS] Parse error', e);
+          }
+        };
 
-      this.socket.onclose = (event) => {
-        this.handleDisconnect(event);
-      };
+        this.socket.onclose = (event) => {
+          this.handleDisconnect(event);
+        };
 
-      this.socket.onerror = () => {
-        console.warn(`[WSS] Connection failed for URL: ${this.url}. Reason: Network error or server unavailable.`);
-      };
+        this.socket.onerror = () => {
+          console.warn(`[WSS] Connection failed for URL: ${wsUrl}. Reason: Network error or server unavailable.`);
+        };
+      });
     } catch {
       this.handleDisconnect();
     }
   }
+
+
 
   private handleDisconnect(event?: CloseEvent) {
     this.socket = null;
     
     if (event) {
        console.warn(`[WSS] Connection closed for URL: ${this.url}. Code: ${event.code}, Reason: ${event.reason || 'Server unavailable'}`);
-    }
-
-    const disableMock = import.meta.env.VITE_DISABLE_MOCK_SIMULATOR === 'true';
-
-    if (!disableMock) {
-       this.fallbackToMock();
-       return;
     }
 
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
@@ -76,11 +77,7 @@ class WebSocketClient {
     }
   }
 
-  private fallbackToMock() {
-    this.isUsingMock = true;
-    this.notifyStatus('mock');
-    startMockSimulator((msg) => this.notifyHandlers(msg));
-  }
+
 
   subscribe(handler: MessageHandler) {
     this.handlers.add(handler);
@@ -111,10 +108,6 @@ class WebSocketClient {
     if (this.socket) {
       this.socket.close();
       this.socket = null;
-    }
-    if (this.isUsingMock) {
-      stopMockSimulator();
-      this.isUsingMock = false;
     }
     this.handlers.clear();
     this.statusHandlers.clear();
