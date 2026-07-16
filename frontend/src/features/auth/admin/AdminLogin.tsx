@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/Input'
 import { PasswordInput } from '@/components/ui/PasswordInput'
 import { Button } from '@/components/ui/Button'
 import { authService } from '@/features/auth/services/authService'
+import { DemoCredentialsCard } from '@/features/auth/shared/DemoCredentialsCard'
 
 const LOCK_ICON = (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -64,6 +65,7 @@ export const AdminLogin: React.FC = () => {
       subtitle="Secure access to the Command Center for stadium administrators."
       footerText="Access is limited to pre-approved administrator accounts."
       errorMsg={errorMsg}
+      demoCard={<DemoCredentialsCard role="Administrator" email="admin@perimo.io" password="Admin@123" />}
     >
       <form onSubmit={handleSubmit} noValidate>
         <Input

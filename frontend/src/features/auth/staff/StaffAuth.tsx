@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/Input'
 import { PasswordInput } from '@/components/ui/PasswordInput'
 import { Button } from '@/components/ui/Button'
 import { authService } from '@/features/auth/services/authService'
+import { DemoCredentialsCard } from '@/features/auth/shared/DemoCredentialsCard'
 
 export const StaffAuth: React.FC = () => {
   const navigate = useNavigate()
@@ -53,6 +54,7 @@ export const StaffAuth: React.FC = () => {
       subtitle="Sign in to access operations, security, medical and transport tools."
       footerText="Staff accounts are provisioned by your stadium operations administrator."
       errorMsg={errorMsg}
+      demoCard={<DemoCredentialsCard role="Staff" email="staff@perimo.io" password="Staff@123" />}
     >
       <form onSubmit={handleSubmit} noValidate>
         <Input name="email" type="email" label="Email" placeholder="you@perimo.io" required />

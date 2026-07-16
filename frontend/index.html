@@ -9,5 +9,32 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      window.addEventListener('error', function(event) {
+        fetch('http://localhost:4000/log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'error',
+            message: event.message,
+            filename: event.filename,
+            lineno: event.lineno,
+            colno: event.colno,
+            error: event.error ? event.error.stack : null
+          })
+        }).catch(console.error);
+      });
+
+      window.addEventListener('unhandledrejection', function(event) {
+        fetch('http://localhost:4000/log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'unhandledrejection',
+            reason: event.reason ? (event.reason.stack || event.reason.message || event.reason) : 'Unknown reason'
+          })
+        }).catch(console.error);
+      });
+    </script>
   </body>
 </html>

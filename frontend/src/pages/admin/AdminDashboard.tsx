@@ -102,21 +102,21 @@ export const AdminDashboard: React.FC = () => {
           Alerts (a compact list that doesn't need the widest slot). At lg: 6:6
           with ResourceDeployment below. At md/sm: all stack col-12. */}
       <div
-        className="grid grid-cols-12 gap-5"
+        className="grid grid-cols-12 gap-5 lg:h-[420px]"
         aria-label="Supporting detail zone"
       >
         {/* Critical Alerts — compact list, no longer the widest card */}
-        <div className="col-span-12 lg:col-span-6 xl:col-span-4">
+        <div className="col-span-12 lg:col-span-6 xl:col-span-4 h-[400px] lg:h-full">
           <CriticalAlertsWidget />
         </div>
 
         {/* Crowd & Gates — merged single widget, widest of the three (chart breathing room) */}
-        <div className="col-span-12 lg:col-span-6 xl:col-span-5">
+        <div className="col-span-12 lg:col-span-6 xl:col-span-5 h-[400px] lg:h-full">
           <CrowdGatesWidget gates={gates} />
         </div>
 
         {/* Resource Deployment — narrowest, rightmost; "who's already on it" confirmation */}
-        <div className="col-span-12 xl:col-span-3">
+        <div className="col-span-12 xl:col-span-3 h-[400px] lg:h-full">
           <ResourceDeploymentPanel />
         </div>
       </div>

@@ -15,13 +15,13 @@ interface LogRow {
 }
 
 const LOGS: LogRow[] = [
-  { id: 'l1', time: '2026-07-13 14:01:22', eventId: 'EVT-9912A', actor: 'PERIMO AI System', action: 'AUTO_SCALE_GATES', target: 'Gate_Cluster_4', detail: 'AI automatically opened overflow lane due to threshold.', type: 'AI Operations' },
-  { id: 'l2', time: '2026-07-13 14:02:22', actor: 'john.doe@perimo.io', eventId: 'EVT-9922A', action: 'USER_LOGIN', target: 'Session', detail: 'Successful MFA login.', type: 'Authentication' },
-  { id: 'l3', time: '2026-07-13 14:03:22', actor: 'sofia.ibrahim@perimo.io', eventId: 'EVT-9932A', action: 'ROLE_UPDATED', target: 'Security Chief', detail: 'Added camera network permissions.', type: 'Configuration' },
-  { id: 'l4', time: '2026-07-13 14:04:22', actor: 'PERIMO AI System', eventId: 'EVT-9942A', action: 'RECOMMENDATION_APPROVED', target: 'INC-2041', detail: 'Medical dispatch recommendation auto-approved.', type: 'AI Operations' },
-  { id: 'l5', time: '2026-07-13 14:05:22', actor: 'alex.romero@perimo.io', eventId: 'EVT-9952A', action: 'USER_LOGIN', target: 'Session', detail: 'Successful MFA login.', type: 'Authentication' },
-  { id: 'l6', time: '2026-07-13 14:06:22', actor: 'marcus.chen@perimo.io', eventId: 'EVT-9962A', action: 'SETTINGS_CHANGED', target: 'Platform Settings', detail: 'Updated maintenance mode window.', type: 'Configuration' },
-  { id: 'l7', time: '2026-07-13 14:07:22', actor: 'unknown@external.io', eventId: 'EVT-9972A', action: 'USER_LOGIN_FAILED', target: 'Session', detail: 'Failed login attempt — invalid credentials.', type: 'Authentication' },
+  { id: 'l1', time: '2026-07-16 08:01:22', eventId: 'EVT-9912A', actor: 'PERIMO AI System', action: 'AUTO_SCALE_GATES', target: 'Gate_Cluster_4', detail: 'AI automatically opened overflow lane due to threshold.', type: 'AI Operations' },
+  { id: 'l2', time: '2026-07-16 08:02:22', actor: 'vansh@perimo.ai', eventId: 'EVT-9922A', action: 'USER_LOGIN', target: 'Session', detail: 'Successful MFA login from Chrome on Windows.', type: 'Authentication' },
+  { id: 'l3', time: '2026-07-16 08:03:22', actor: 'vansh@perimo.ai', eventId: 'EVT-9932A', action: 'BROADCAST_SENT', target: 'All Staff', detail: 'High Density warning broadcast via Quick Actions.', type: 'Configuration' },
+  { id: 'l4', time: '2026-07-16 08:04:22', actor: 'PERIMO AI System', eventId: 'EVT-9942A', action: 'RECOMMENDATION_APPROVED', target: 'INC-2041', detail: 'Medical dispatch recommendation auto-approved.', type: 'AI Operations' },
+  { id: 'l5', time: '2026-07-16 08:05:22', actor: 'vansh@perimo.ai', eventId: 'EVT-9952A', action: 'TEAM_DEPLOYED', target: 'Security Alpha', detail: 'Security Alpha deployed to Gate C — Emergency response.', type: 'Configuration' },
+  { id: 'l6', time: '2026-07-16 08:06:22', actor: 'sofia.ibrahim@perimo.ai', eventId: 'EVT-9962A', action: 'ROLE_UPDATED', target: 'Security Chief', detail: 'Added camera network permissions.', type: 'Configuration' },
+  { id: 'l7', time: '2026-07-16 08:07:22', actor: 'unknown@external.io', eventId: 'EVT-9972A', action: 'USER_LOGIN_FAILED', target: 'Session', detail: 'Failed login attempt — invalid credentials.', type: 'Authentication' },
 ];
 
 const TYPE_TONE: Record<LogRow['type'], 'info' | 'neutral' | 'success'> = { Authentication: 'info', 'AI Operations': 'success', Configuration: 'neutral' };

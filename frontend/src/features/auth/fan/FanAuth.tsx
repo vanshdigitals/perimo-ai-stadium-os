@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
 
 import { authService } from '@/features/auth/services/authService'
+import { DemoCredentialsCard } from '@/features/auth/shared/DemoCredentialsCard'
 
 export const FanAuth: React.FC = () => {
   const navigate = useNavigate()
@@ -43,7 +44,7 @@ export const FanAuth: React.FC = () => {
     
     authService.createSession(email, 'fan')
     
-    navigate('/auth/success', { state: { kind: isRegister ? 'fan-register' : 'fan-login' } })
+    navigate('/auth/fan/welcome')
   }
 
   const icon = (
@@ -57,11 +58,12 @@ export const FanAuth: React.FC = () => {
     <BaseAuthPage
       icon={icon}
       iconWrapperClass="bg-brand/10 text-brand"
-      badgeText="PUBLIC SIGN-UP"
+      badgeText="PUBLIC REGISTRATION"
       title={isRegister ? "Create your Fan account" : "Log in to Perimo"}
       subtitle={isRegister ? "Join Perimo to unlock AI-powered stadium experiences." : "Access AI stadium navigation, live updates and personalized recommendations."}
       footerText="Fan accounts are self-service and free for all ticket holders."
       errorMsg={errorMsg}
+      demoCard={<DemoCredentialsCard role="Fan" email="fan@perimo.io" password="Fan@123" />}
     >
       <div className="flex bg-surface-subtle rounded-full p-1 mb-6">
         <button
@@ -82,7 +84,7 @@ export const FanAuth: React.FC = () => {
             isRegister ? "bg-white text-text shadow-sm" : "bg-transparent text-text-muted"
           )}
         >
-          Sign Up
+          Registration
         </button>
       </div>
 

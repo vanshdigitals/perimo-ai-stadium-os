@@ -110,3 +110,18 @@
 .utility-scrollbar::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
 .utility-scrollbar:hover::-webkit-scrollbar-thumb { background: #CBD5E1; }
 .utility-scrollbar::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* Fan App Utilities */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ticket QR scan animation */
+@keyframes scan {
+  0%, 100% { top: 0; }
+  50% { top: calc(100% - 2px); }
+}

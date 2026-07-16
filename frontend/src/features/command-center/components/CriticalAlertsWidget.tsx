@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, AlertCircle, Info, ChevronRight } from 'lucide-react';
-
-// Per IA spec §5: absorbs Emergency Queue + timeline as a pinned top section + Feed/Timeline tabs.
-// Per IA spec §6: ~42% width, tallest of the bottom row.
-// Emergency response timer (elapsed count-up) per IA spec §2.
+import { AlertTriangle, AlertCircle, Info, BellRing, Expand, MoreVertical } from 'lucide-react';
+import { WidgetCard, WidgetHeaderButton } from '@/components/widgets/WidgetCard';
 
 interface Alert {
   id: string;
@@ -12,7 +9,7 @@ interface Alert {
   description: string;
   severity: 'critical' | 'high' | 'medium' | 'info';
   status: 'Active' | 'Responding' | 'Monitoring' | 'Resolved';
-  startedAt: number; // ms epoch
+  startedAt: number;
 }
 
 const INITIAL_ALERTS: Alert[] = [
@@ -23,7 +20,7 @@ const INITIAL_ALERTS: Alert[] = [
     description: 'Immediate medical response dispatched.',
     severity: 'critical',
     status: 'Responding',
-    startedAt: Date.now() - 134_000, // 2m 14s ago
+    startedAt: Date.now() - 134_000,
   },
   {
     id: 'a2',
@@ -32,7 +29,7 @@ const INITIAL_ALERTS: Alert[] = [
     description: 'Crowd density exceeded 92%. Consider overflow routing.',
     severity: 'high',
     status: 'Active',
-    startedAt: Date.now() - 240_000, // 4m ago
+    startedAt: Date.now() - 240_000,
   },
   {
     id: 'a3',
@@ -61,7 +58,6 @@ const SEVERITY_CONFIG = {
   info:     { border: '#3B82F6', icon: Info,           iconColor: '#3B82F6', statusBg: '#F1F5F9',    statusText: '#475569'  },
 };
 
-/** Live elapsed timer for active/responding alerts. */
 function useElapsed(startedAt: number) {
   const [elapsed, setElapsed] = useState(Math.floor((Date.now() - startedAt) / 1000));
   useEffect(() => {
@@ -88,29 +84,23 @@ export const CriticalAlertsWidget: React.FC = () => {
   const feedAlerts   = alerts.filter(a => a.status !== 'Responding' || a.severity !== 'critical');
 
   return (
-    <div
-      className="min-h-[320px] bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(0,0,0,0.02)] rounded-[16px] flex flex-col overflow-hidden"
-      role="region"
-      aria-label="Critical Alerts & Emergency Queue"
+    <WidgetCard
+      title="Critical Alerts & Emergency Queue"
+      icon={BellRing}
+      live={true}
+      actions={
+        <>
+          <WidgetHeaderButton icon={Expand} label="Expand" onClick={() => {}} />
+          <WidgetHeaderButton icon={MoreVertical} label="Menu" onClick={() => {}} />
+        </>
+      }
+      noPadding
+      className="h-full"
+      bodyClassName="flex flex-col"
     >
-      {/* Fixed-height header */}
-      <div className="flex items-center justify-between px-5 h-[60px] border-b border-[#E2E8F0] shrink-0">
-        <h3 className="text-[14px] font-semibold text-[#0F172A] m-0 flex items-center gap-2">
-          Critical Alerts &amp; Emergency Queue
-          <span className="w-1.5 h-1.5 rounded-full bg-[#1FAA6D] animate-perimo-pulse" aria-hidden="true" />
-        </h3>
-        <button
-          className="text-[13px] font-medium text-[#64748B] hover:text-[#0F172A] transition-colors flex items-center gap-0.5 group outline-none"
-          aria-label="View all alerts"
-        >
-          View All
-          <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-        </button>
-      </div>
-
       {/* Pinned Active Emergencies section */}
       {activeAlerts.length > 0 && (
-        <div className="bg-[#FEF2F2] border-b border-[#FCA5A5]/40 px-5 py-3 flex flex-col gap-2">
+        <div className="bg-[#FEF2F2] border-b border-[#FCA5A5]/40 px-5 py-3 flex flex-col gap-2 shrink-0">
           <div className="text-[11px] font-semibold text-[#991B1B] uppercase tracking-[0.06em] mb-1">
             ▲ Active Emergencies ({activeAlerts.length})
           </div>
@@ -135,14 +125,14 @@ export const CriticalAlertsWidget: React.FC = () => {
       )}
 
       {/* Feed | Timeline tab bar */}
-      <div className="flex items-center border-b border-[#E2E8F0] px-5" role="tablist">
+      <div className="flex items-center border-b border-[#E2E8F0] px-5 shrink-0" role="tablist">
         {(['Feed', 'Timeline'] as FeedTab[]).map(t => (
           <button
             key={t}
             role="tab"
             aria-selected={tab === t}
             onClick={() => setTab(t)}
-            className={`h-[44px] px-1 mr-5 text-[13px] font-medium border-b-2 transition-colors ${
+            className={`h-[44px] px-1 mr-5 text-[13px] font-medium border-b-2 transition-colors outline-none ${
               tab === t
                 ? 'text-[#0F172A] border-[#2563EB]'
                 : 'text-[#64748B] border-transparent hover:text-[#0F172A]'
@@ -155,14 +145,14 @@ export const CriticalAlertsWidget: React.FC = () => {
 
       {/* Feed */}
       {tab === 'Feed' && (
-        <div className="flex flex-col flex-1 overflow-y-auto">
+        <div className="flex flex-col flex-1">
           {feedAlerts.map(alert => {
             const cfg = SEVERITY_CONFIG[alert.severity];
             const Icon = cfg.icon;
             return (
               <div
                 key={alert.id}
-                className="group relative flex items-center justify-between gap-4 px-5 h-[72px] border-b border-[#E2E8F0] hover:bg-[#F8FAFC] transition-colors cursor-pointer last:border-b-0 focus-within:outline-none"
+                className="group relative flex items-center justify-between gap-4 px-5 h-[72px] shrink-0 border-b border-[#E2E8F0] hover:bg-[#F8FAFC] transition-colors cursor-pointer last:border-b-0 focus-within:outline-none"
                 tabIndex={0}
                 role="button"
                 aria-label={`${alert.severity} alert: ${alert.title}`}
@@ -194,7 +184,7 @@ export const CriticalAlertsWidget: React.FC = () => {
 
       {/* Timeline */}
       {tab === 'Timeline' && (
-        <div className="flex-1 px-5 py-4 overflow-y-auto">
+        <div className="flex-1 px-5 py-4">
           <div className="flex flex-col gap-0">
             {alerts.map((alert, i) => {
               const cfg = SEVERITY_CONFIG[alert.severity];
@@ -221,6 +211,6 @@ export const CriticalAlertsWidget: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </WidgetCard>
   );
 };

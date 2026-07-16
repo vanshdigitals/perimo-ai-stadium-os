@@ -1,9 +1,7 @@
 import React from 'react';
+import { Truck, Expand, MoreVertical } from 'lucide-react';
 import type { MobileUnit } from '@/features/digital-twin/types';
-
-// Resource Deployment widget — answers "who is already in the field?".
-// Per IA spec §2, §5 (Small-Medium, ~24-28% of secondary row).
-// Data comes from existing MobileUnit[] which already tracks type/status.
+import { WidgetCard, WidgetHeaderButton } from '@/components/widgets/WidgetCard';
 
 interface Props {
   units: MobileUnit[];
@@ -34,24 +32,22 @@ export const ResourceDeploymentWidget: React.FC<Props> = ({ units }) => {
   });
 
   return (
-    <div
-      className="min-h-[320px] bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(0,0,0,0.02)] rounded-[16px] flex flex-col overflow-hidden"
-      role="region"
-      aria-label="Resource Deployment"
+    <WidgetCard
+      title="Resource Deployment"
+      icon={Truck}
+      live={true}
+      actions={
+        <>
+          <WidgetHeaderButton icon={Expand} label="Expand" onClick={() => {}} />
+          <WidgetHeaderButton icon={MoreVertical} label="Menu" onClick={() => {}} />
+        </>
+      }
+      noPadding
+      className="h-full"
+      bodyClassName="flex flex-col"
     >
-      {/* Fixed-height header */}
-      <div className="flex items-center justify-between px-5 h-[60px] border-b border-[#E2E8F0] shrink-0">
-        <h3 className="text-[14px] font-semibold text-[#0F172A] m-0 flex items-center gap-2">
-          Resource Deployment
-          <span className="w-1.5 h-1.5 rounded-full bg-[#1FAA6D] animate-perimo-pulse" aria-hidden="true" />
-        </h3>
-        <span className="text-[11px] font-medium text-[#64748B]">
-          {units.filter(u => u.status !== 'offline').length} deployed
-        </span>
-      </div>
-
       {/* Unit rows */}
-      <div className="flex-1 flex flex-col divide-y divide-[#E2E8F0] px-4 py-3 gap-1">
+      <div className="flex-1 flex flex-col divide-y divide-[#E2E8F0] px-4 py-3 gap-1 overflow-y-auto">
         {grouped.map(row => (
           <div key={row.type} className="flex items-center justify-between py-3">
             {/* Unit type badge */}
@@ -90,11 +86,11 @@ export const ResourceDeploymentWidget: React.FC<Props> = ({ units }) => {
       </div>
 
       {/* Totals footer */}
-      <div className="border-t border-[#E2E8F0] px-5 py-3 flex items-center justify-between bg-[#F8FAFC]">
+      <div className="border-t border-[#E2E8F0] px-5 py-3 flex items-center justify-between bg-[#F8FAFC] shrink-0">
         <span className="text-[11px] text-[#64748B]">Total units tracked</span>
         <span className="text-[12px] font-semibold font-mono tabular-nums text-[#0F172A]">{units.length}</span>
       </div>
-    </div>
+    </WidgetCard>
   );
 };
 
@@ -102,6 +98,6 @@ const StatusChip: React.FC<{ count: number; dotClass: string; label: string }> =
   <div className="flex items-center gap-1.5" title={`${count} ${label}`}>
     <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotClass}`} aria-hidden="true" />
     <span className="text-[12px] font-mono tabular-nums font-medium text-[#0F172A]">{count}</span>
-    <span className="text-[11px] text-[#64748B]">{label}</span>
+    <span className="text-[11px] text-[#64748B] hidden xl:inline">{label}</span>
   </div>
 );

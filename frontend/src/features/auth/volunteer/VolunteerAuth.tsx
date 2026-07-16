@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/Input'
 import { PasswordInput } from '@/components/ui/PasswordInput'
 import { Button } from '@/components/ui/Button'
 import { authService } from '@/features/auth/services/authService'
+import { DemoCredentialsCard } from '@/features/auth/shared/DemoCredentialsCard'
 
 export const VolunteerAuth: React.FC = () => {
   const navigate = useNavigate()
@@ -83,6 +84,7 @@ export const VolunteerAuth: React.FC = () => {
       subtitle={view === 'first-time' ? "Set up your password to activate your account." : "Sign in to view assigned tasks, shift schedules and AI recommendations."}
       footerText="Volunteer accounts are created by your program coordinator."
       errorMsg={errorMsg}
+      demoCard={<DemoCredentialsCard role="Volunteer" email="volunteer@perimo.io" password="Volunteer@123" />}
     >
       {view === 'login' && (
         <form onSubmit={handleSubmitLogin} noValidate>

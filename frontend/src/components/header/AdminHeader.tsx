@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Menu, PanelRight } from 'lucide-react';
 import { OverlayProvider } from '@/contexts/OverlayContext';
 import { WorkspaceSwitcher } from '@/components/navigation/WorkspaceSwitcher';
@@ -8,14 +8,45 @@ import { QuickActions } from '@/components/navigation/QuickActions';
 import { LanguageSwitcher } from '@/components/navigation/LanguageSwitcher';
 import { ProfileMenu } from '@/components/navigation/ProfileMenu';
 
+import { useLocation } from 'react-router-dom';
+
 interface AdminHeaderProps {
   onToggleSidebar: () => void;
   isSidebarOpen: boolean;
   onToggleUtilityPanel: () => void;
-  onLogout?: () => void; // Adding this to match AdminLayout signature
+  onLogout?: () => void;
 }
 
+const ROUTE_MAP: Record<string, { category: string; page: string }> = {
+  '/admin': { category: 'Operations', page: 'Command Center' },
+  '/admin/live-ops': { category: 'Operations', page: 'Live Operations' },
+  '/admin/crowd': { category: 'Intelligence', page: 'Crowd Intelligence' },
+  '/admin/digital-twin': { category: 'Intelligence', page: 'Digital Twin' },
+  '/admin/incidents': { category: 'Operations', page: 'Incident Center' },
+  '/admin/transportation': { category: 'Logistics', page: 'Transportation' },
+  '/admin/facilities': { category: 'Logistics', page: 'Facilities' },
+  '/admin/security': { category: 'Operations', page: 'Security Center' },
+  '/admin/ai': { category: 'Intelligence', page: 'AI Copilot' },
+  '/admin/analytics': { category: 'Reporting', page: 'Analytics' },
+  '/admin/users': { category: 'Administration', page: 'User Management' },
+  '/admin/roles': { category: 'Administration', page: 'Roles & Permissions' },
+  '/admin/notifications': { category: 'Administration', page: 'Notifications' },
+  '/admin/audit-logs': { category: 'Administration', page: 'Audit Logs' },
+  '/admin/settings': { category: 'Administration', page: 'Platform Settings' },
+  '/admin/profile': { category: 'Account', page: 'My Profile' },
+  '/admin/workspace': { category: 'Account', page: 'Workspace' },
+  '/admin/preferences': { category: 'Account', page: 'Preferences' },
+  '/admin/security-settings': { category: 'Account', page: 'Security & API Keys' },
+};
+
 export const AdminHeader: React.FC<AdminHeaderProps> = ({ onToggleSidebar, onToggleUtilityPanel, onLogout }) => {
+  const location = useLocation();
+
+  const breadcrumb = useMemo(() => {
+    const defaultNav = { category: 'Operations', page: 'Command Center' };
+    return ROUTE_MAP[location.pathname] || defaultNav;
+  }, [location.pathname]);
+
   return (
     <OverlayProvider>
       <header className="fixed top-0 left-0 right-0 h-[72px] flex items-center gap-4 px-6 border-b border-[#E2E8F0] bg-white z-[100]">
@@ -32,12 +63,16 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onToggleSidebar, onTog
           {/* Interactive Workspace Switcher (Single Clickable Surface) */}
           <WorkspaceSwitcher />
 
-          {/* Breadcrumb - improved baseline alignment */}
-          <div className="flex items-center gap-3 text-[14px] min-w-0 border-l border-[#E2E8F0] pl-4 ml-1 hidden lg:flex h-[24px]">
+          {/* Dynamic Breadcrumb */}
+          <div className="flex items-center gap-2.5 text-[14px] min-w-0 border-l border-[#E2E8F0] pl-4 ml-1 hidden lg:flex h-[24px]">
+            <span className="text-[#64748B] font-medium whitespace-nowrap">PERIMO</span>
+            <span className="text-[#94A3B8] text-[12px] font-medium">/</span>
+            <span className="text-[#64748B] font-medium whitespace-nowrap">{breadcrumb.category}</span>
+            <span className="text-[#94A3B8] text-[12px] font-medium">/</span>
             <span className="text-[#0F172A] font-semibold whitespace-nowrap overflow-hidden text-ellipsis leading-none">
-              Command Center
+              {breadcrumb.page}
             </span>
-            <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#1FAA6D] bg-[#1FAA6D]/10 px-2 py-0.5 rounded-[4px] uppercase tracking-wider leading-none">
+            <span className="ml-1.5 flex items-center gap-1.5 text-[11px] font-bold text-[#1FAA6D] bg-[#1FAA6D]/10 px-2 py-0.5 rounded-[4px] uppercase tracking-wider leading-none">
               <span className="w-1.5 h-1.5 rounded-full bg-[#1FAA6D] animate-perimo-pulse" />
               System Live
             </span>

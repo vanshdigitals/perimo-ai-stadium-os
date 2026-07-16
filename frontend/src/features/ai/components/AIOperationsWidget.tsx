@@ -1,29 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Brain, RefreshCw, AlertCircle } from 'lucide-react';
+import { Brain, RefreshCw, AlertCircle, Expand, MoreVertical } from 'lucide-react';
 import { useAIRecommendations } from '../hooks/useAIRecommendations';
 import { useGeminiStatus } from '../hooks/useGeminiStatus';
 import { RecommendationCard } from './RecommendationCard';
 import { useLiveUpdates } from '@/features/digital-twin/hooks/useLiveUpdates';
 import type { AIRecommendation } from '../types';
+import { WidgetCard, WidgetHeaderButton } from '@/components/widgets/WidgetCard';
 
-// Internally divided into three zones (layout-only restructure, no new business
-// logic — approve/reject/backoff/failover all still live in the existing hooks):
-//   1. AI Status       — persistent health strip (never hidden, unlike a transient toast)
-//   2. Recommendation Queue — compact, scrollable index of everything the Copilot has raised
-//   3. Active Recommendation — full detail + approve/reject for whichever queue item is selected
-// Root uses h-full so CSS Grid stretch matches its height to the Digital Twin
-// widget beside it; both scrollable zones are height-capped so this widget's own
-// content never forces the shared row taller than the map defines.
 export const AIOperationsWidget: React.FC = () => {
   const { units, gates, thermal, crowdFlows } = useLiveUpdates();
   const context = { units, gates, thermal, crowdFlows };
   const { recommendations, isLoading, error, updateStatus, forceRefresh } = useAIRecommendations(context);
-  // Generic failover status only — never reveals which Gemini key is active.
   const geminiStatus = useGeminiStatus();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // Keep selection valid as the queue changes; default to the most recent item.
   useEffect(() => {
     if (recommendations.length === 0) {
       setSelectedId(null);
@@ -37,28 +28,25 @@ export const AIOperationsWidget: React.FC = () => {
   const active: AIRecommendation | undefined = recommendations.find(r => r.id === selectedId);
 
   return (
-    <div className="h-full flex flex-col bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(0,0,0,0.02)] rounded-[16px] p-5 overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3 shrink-0">
-        <h3 className="text-[14px] font-semibold text-[#0F172A] m-0 flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-[#1652F0]/10 flex items-center justify-center">
-            <Brain className="w-3.5 h-3.5 text-[#1652F0]" />
-          </div>
-          AI Operations Copilot
-        </h3>
-        <button
-          onClick={forceRefresh}
-          disabled={isLoading}
-          className="p-1.5 text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-md transition-colors disabled:opacity-50 cursor-pointer"
-          aria-label="Refresh recommendations"
-        >
-          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-[#1652F0]' : ''}`} />
-        </button>
-      </div>
-
+    <WidgetCard
+      title="AI Operations Copilot"
+      icon={Brain}
+      iconColor="#1652F0"
+      live={!error}
+      actions={
+        <>
+          <WidgetHeaderButton icon={RefreshCw} label="Refresh" onClick={forceRefresh} />
+          <WidgetHeaderButton icon={Expand} label="Expand" onClick={() => {}} />
+          <WidgetHeaderButton icon={MoreVertical} label="Menu" onClick={() => {}} />
+        </>
+      }
+      className="h-full"
+      bodyClassName="flex flex-col gap-3"
+      newContentCount={recommendations.length > 3 ? recommendations.length - 3 : 0}
+    >
       {/* Zone 1 — AI Status: persistent, not a transient toast. Shows failover
           copy when present, otherwise a steady "Online" read. */}
-      <div className="flex items-center justify-between shrink-0 mb-3 px-2.5 py-1.5 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0]">
+      <div className="flex items-center justify-between shrink-0 px-3 py-2 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0]">
         <div className="flex items-center gap-1.5 min-w-0">
           <span
             className={`w-1.5 h-1.5 rounded-full shrink-0 ${
@@ -78,7 +66,7 @@ export const AIOperationsWidget: React.FC = () => {
       {/* Zone 2 — Recommendation Queue: compact index, height-capped + scrollable
           so a long queue never grows this widget taller than the Digital Twin. */}
       {recommendations.length > 0 && (
-        <div className="shrink-0 mb-3">
+        <div className="shrink-0">
           <div className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-[0.06em] mb-1.5 px-0.5">
             Queue ({recommendations.length})
           </div>
@@ -156,6 +144,6 @@ export const AIOperationsWidget: React.FC = () => {
           </>
         )}
       </div>
-    </div>
+    </WidgetCard>
   );
 };

@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { Users, Expand, MoreVertical } from 'lucide-react';
 import type { GateThroughput } from '@/features/digital-twin/types';
-
-// Merged widget: CrowdIntelligenceWidget + EntryGatesWidget.
-// Per IA spec §3, §5 (Medium, ~32-35% row width).
-// Density | Flow Rate | Table — same gate[] data, three view modes.
+import { WidgetCard, WidgetHeaderButton } from '@/components/widgets/WidgetCard';
 
 type ViewMode = 'Density' | 'Flow Rate' | 'Table';
 
@@ -16,34 +13,29 @@ export const CrowdGatesWidget: React.FC<Props> = ({ gates }) => {
   const [view, setView] = useState<ViewMode>('Density');
 
   return (
-    <div
-      className="min-h-[320px] bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(0,0,0,0.02)] rounded-[16px] flex flex-col overflow-hidden"
-      role="region"
-      aria-label="Crowd & Gates Intelligence"
+    <WidgetCard
+      title="Crowd & Gates Intelligence"
+      icon={Users}
+      live={true}
+      actions={
+        <>
+          <WidgetHeaderButton icon={Expand} label="Expand" onClick={() => {}} />
+          <WidgetHeaderButton icon={MoreVertical} label="Menu" onClick={() => {}} />
+        </>
+      }
+      noPadding
+      className="h-full"
+      bodyClassName="flex flex-col"
     >
-      {/* Fixed-height header (60px, consistent with IA spec §10) */}
-      <div className="flex items-center justify-between px-5 h-[60px] border-b border-[#E2E8F0] shrink-0">
-        <h3 className="text-[14px] font-semibold text-[#0F172A] m-0 flex items-center gap-2">
-          Crowd &amp; Gates Intelligence
-          <span className="w-1.5 h-1.5 rounded-full bg-[#1FAA6D] animate-perimo-pulse" aria-hidden="true" />
-        </h3>
-        <button
-          className="w-7 h-7 flex items-center justify-center rounded-[6px] text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors"
-          aria-label="View all gates"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-
       {/* Tab Toggle */}
-      <div className="flex items-center bg-[#F1F5F9] m-4 mb-0 p-1 rounded-[8px]" role="tablist">
+      <div className="flex items-center bg-[#F1F5F9] m-4 mb-0 p-1 rounded-[8px] shrink-0" role="tablist">
         {(['Density', 'Flow Rate', 'Table'] as ViewMode[]).map(mode => (
           <button
             key={mode}
             role="tab"
             aria-selected={view === mode}
             onClick={() => setView(mode)}
-            className={`flex-1 h-7 text-[12px] font-medium rounded-[6px] transition-all ${
+            className={`flex-1 h-7 text-[12px] font-medium rounded-[6px] transition-all outline-none ${
               view === mode
                 ? 'text-[#0F172A] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]'
                 : 'text-[#64748B] hover:text-[#0F172A]'
@@ -56,8 +48,8 @@ export const CrowdGatesWidget: React.FC<Props> = ({ gates }) => {
 
       {/* Chart Views */}
       {(view === 'Density' || view === 'Flow Rate') && (
-        <div className="flex-1 flex flex-col p-4 pt-3">
-          <div className="flex items-center gap-4 mb-3">
+        <div className="flex-1 flex flex-col p-4 pt-3 min-h-0">
+          <div className="flex items-center gap-4 mb-3 shrink-0">
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#64748B]">
               <div className="w-2.5 h-2.5 bg-[#1652F0] rounded-[2px]" />
               {view === 'Density' ? 'High Density (>80%)' : 'High Flow (>200/min)'}
@@ -77,7 +69,7 @@ export const CrowdGatesWidget: React.FC<Props> = ({ gates }) => {
             </div>
 
             {/* Bars */}
-            <div className="flex-1 flex items-end gap-1.5 group/chart h-[140px]">
+            <div className="flex-1 flex items-end gap-1.5 group/chart h-full">
               {gates.map(gate => {
                 const density = Math.min(100, Math.round((gate.occupancy / gate.capacity) * 100));
                 const value = view === 'Density' ? density : gate.flowRate;
@@ -110,8 +102,8 @@ export const CrowdGatesWidget: React.FC<Props> = ({ gates }) => {
 
       {/* Table View */}
       {view === 'Table' && (
-        <div className="flex-1 flex flex-col">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-medium text-[#64748B] uppercase tracking-wider">
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex items-center justify-between px-4 py-2.5 bg-[#F8FAFC] border-y border-[#E2E8F0] mt-4 text-[11px] font-medium text-[#64748B] uppercase tracking-wider shrink-0">
             <span className="w-[80px]">Gate</span>
             <span className="flex-1">Flow Rate</span>
             <span className="w-[50px] text-right">Wait</span>
@@ -129,7 +121,7 @@ export const CrowdGatesWidget: React.FC<Props> = ({ gates }) => {
               return (
                 <div
                   key={gate.gateId}
-                  className="group/row relative flex items-center justify-between px-4 h-[48px] border-b border-[#E2E8F0] last:border-0 hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+                  className="group/row relative flex items-center justify-between px-4 h-[48px] shrink-0 border-b border-[#E2E8F0] last:border-0 hover:bg-[#F8FAFC] transition-colors cursor-pointer"
                 >
                   <span className="w-[80px] text-[13px] font-medium text-[#0F172A] truncate flex items-center gap-1.5">
                     {gate.gateId}
@@ -159,6 +151,6 @@ export const CrowdGatesWidget: React.FC<Props> = ({ gates }) => {
           </div>
         </div>
       )}
-    </div>
+    </WidgetCard>
   );
 };

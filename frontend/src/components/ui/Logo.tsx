@@ -22,7 +22,7 @@ export const Logo: React.FC<LogoProps> = ({ showText = true, className, theme = 
       {showText && (
         <div className="min-w-0 whitespace-nowrap animate-in fade-in zoom-in-95 duration-200 flex flex-col justify-center items-start text-left">
           <div className={cn("font-display font-semibold text-[17px] tracking-[0.01em] leading-[1.1]", isDark ? "text-white" : "text-[#0F172A]")}>PERIMO</div>
-          <div className={cn("text-[11px] leading-[1.1] font-medium tracking-wide", isDark ? "text-white/60" : "text-[#64748B]")}>AI Operating System</div>
+          <div className={cn("text-[11px] leading-[1.1] font-medium tracking-wide", isDark ? "text-white/60" : "text-[#64748B]")}>AI Stadium OS</div>
         </div>
       )}
     </div>

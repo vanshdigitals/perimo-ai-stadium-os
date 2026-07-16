@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MonitorSmartphone, AlertTriangle, Activity } from 'lucide-react';
+import { MonitorSmartphone, AlertTriangle, Activity, Maximize2, RefreshCw, MoreVertical } from 'lucide-react';
 import { LiveMap } from './LiveMap';
 import { useLiveUpdates } from '../hooks/useLiveUpdates';
+import { WidgetCard, WidgetHeaderButton } from '@/components/widgets/WidgetCard';
 
 export const DigitalTwinWidget: React.FC = () => {
   const { units, gates, thermal, crowdFlows, connectionStatus, latency } = useLiveUpdates();
@@ -34,23 +35,21 @@ export const DigitalTwinWidget: React.FC = () => {
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 1, 10));
 
   return (
-    <div ref={widgetRef} className="bg-white border border-[#E2E8F0] shadow-[0_1px_2px_rgba(0,0,0,0.02)] rounded-[16px] flex flex-col p-6">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-[10px] bg-[#F1F5F9] flex items-center justify-center shrink-0">
-          <MonitorSmartphone className="w-5 h-5 text-[#64748B]" strokeWidth={2} />
-        </div>
-        <div>
-          <h2 className="text-[20px] font-display font-semibold text-[#0F172A] m-0 tracking-[-0.01em]">Live Stadium Digital Twin</h2>
-          <p className="text-[14px] text-[#64748B] m-0 mt-1">Real-time mapping and asset tracking</p>
-        </div>
-      </div>
-
-      {/* Map Container — aspect-video (16:9) locks the ratio to the card's own
-          rendered width at every breakpoint, instead of a fixed pixel height
-          that would drift toward square (narrow viewports) or ultra-wide
-          (capped max-w) as width changes. */}
-      <div className="w-full aspect-video bg-[#F8FAFC] rounded-[12px] border border-[#E2E8F0] flex items-center justify-center relative overflow-hidden">
+    <WidgetCard
+      title="Live Stadium Digital Twin"
+      icon={MonitorSmartphone}
+      iconColor="#64748B"
+      live={connectionStatus === 'connected'}
+      actions={
+        <>
+          <WidgetHeaderButton icon={RefreshCw} label="Refresh" onClick={() => {}} />
+          <WidgetHeaderButton icon={Maximize2} label="Expand" onClick={() => {}} />
+          <WidgetHeaderButton icon={MoreVertical} label="Menu" onClick={() => {}} />
+        </>
+      }
+      className="h-full"
+    >
+      <div ref={widgetRef} className="w-full aspect-video bg-[#F8FAFC] rounded-[12px] border border-[#E2E8F0] flex items-center justify-center relative overflow-hidden">
         
         {isVisible && (
           <LiveMap 
@@ -154,6 +153,6 @@ export const DigitalTwinWidget: React.FC = () => {
 
         </div>
       </div>
-    </div>
+    </WidgetCard>
   );
 };

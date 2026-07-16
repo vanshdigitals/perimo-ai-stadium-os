@@ -8,7 +8,11 @@ import { RoleProtectedRoute } from '@/features/auth/components/RoleProtectedRout
 // Lazy loading all pages/views to drastically reduce initial bundle size!
 const RoleSelection = React.lazy(() => import('@/pages/RoleSelection').then(m => ({ default: m.RoleSelection })));
 const Success = React.lazy(() => import('@/pages/Success').then(m => ({ default: m.Success })));
+// Fan Auth Overhaul
 const FanAuth = React.lazy(() => import('@/features/auth/fan/FanAuth').then(m => ({ default: m.FanAuth })));
+const FanRegistration = React.lazy(() => import('@/features/auth/fan/FanRegistration').then(m => ({ default: m.FanRegistration })));
+const TicketVerification = React.lazy(() => import('@/features/auth/fan/TicketVerification').then(m => ({ default: m.TicketVerification })));
+const FanWelcome = React.lazy(() => import('@/features/auth/fan/FanWelcome').then(m => ({ default: m.FanWelcome })));
 const ForgotPassword = React.lazy(() => import('@/features/auth/fan/ForgotPassword').then(m => ({ default: m.ForgotPassword })));
 const VolunteerAuth = React.lazy(() => import('@/features/auth/volunteer/VolunteerAuth').then(m => ({ default: m.VolunteerAuth })));
 const StaffAuth = React.lazy(() => import('@/features/auth/staff/StaffAuth').then(m => ({ default: m.StaffAuth })));
@@ -40,6 +44,12 @@ const RolesPermissions = React.lazy(() => import('@/features/administration/page
 const Notifications = React.lazy(() => import('@/features/administration/pages/Notifications').then(m => ({ default: m.Notifications })));
 const AuditLogs = React.lazy(() => import('@/features/administration/pages/AuditLogs').then(m => ({ default: m.AuditLogs })));
 const PlatformSettings = React.lazy(() => import('@/features/administration/pages/PlatformSettings').then(m => ({ default: m.PlatformSettings })));
+
+// Account Routes
+const MyProfile = React.lazy(() => import('@/features/account/pages/MyProfile').then(m => ({ default: m.MyProfile })));
+const WorkspacePage = React.lazy(() => import('@/features/account/pages/WorkspacePage').then(m => ({ default: m.WorkspacePage })));
+const Preferences = React.lazy(() => import('@/features/account/pages/Preferences').then(m => ({ default: m.Preferences })));
+const SecuritySettings = React.lazy(() => import('@/features/account/pages/SecuritySettings').then(m => ({ default: m.SecuritySettings })));
 
 // Support Routes
 const HelpCenter = React.lazy(() => import('@/features/help/pages/HelpCenter').then(m => ({ default: m.HelpCenter })));
@@ -79,7 +89,9 @@ export const AppRouter = () => {
 
           {/* ── Fan Auth ──────────────────────────────────────────── */}
           <Route path="/auth/fan/login" element={<FanAuth />} />
-          <Route path="/auth/fan/register" element={<FanAuth />} />
+          <Route path="/auth/fan/register" element={<FanRegistration />} />
+          <Route path="/auth/fan/verify" element={<TicketVerification />} />
+          <Route path="/auth/fan/welcome" element={<FanWelcome />} />
           <Route path="/auth/fan/forgot-password" element={<ForgotPassword />} />
 
           {/* ── Volunteer & Staff Auth ────────────────────────────── */}
@@ -112,6 +124,12 @@ export const AppRouter = () => {
           <Route path="/admin/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
           <Route path="/admin/audit-logs" element={<ProtectedRoute><AuditLogs /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute><PlatformSettings /></ProtectedRoute>} />
+
+          {/* ── Account Routes ──────────────────────────────────────── */}
+          <Route path="/admin/profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
+          <Route path="/admin/workspace" element={<ProtectedRoute><WorkspacePage /></ProtectedRoute>} />
+          <Route path="/admin/preferences" element={<ProtectedRoute><Preferences /></ProtectedRoute>} />
+          <Route path="/admin/security-settings" element={<ProtectedRoute><SecuritySettings /></ProtectedRoute>} />
 
           <Route path="/admin/help" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
           <Route path="/admin/docs" element={<ProtectedRoute><Documentation /></ProtectedRoute>} />
