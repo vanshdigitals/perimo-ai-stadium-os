@@ -44,6 +44,7 @@ from src.domains.live_ops.repository import (
     SystemsRepository,
 )
 from src.domains.live_ops.service import LiveOpsService
+from src.domains.fan.home.service import FanHomeService
 from src.platform.eventbus.bus import EventBus
 from src.platform.firestore.store import DocumentStore, build_store
 from src.security.auth.passwords import hash_password
@@ -68,6 +69,7 @@ class Container:
     resource_service: ResourceService
     transport_service: TransportService
     live_ops_service: LiveOpsService
+    fan_home_service: FanHomeService
 
 
 def _seed_admin(settings: Settings, users: UserRepository) -> None:
@@ -128,6 +130,7 @@ def build_container(settings: Settings) -> Container:
         insights=LiveOpsInsightRepository(store),
         summary_repo=LiveOpsSummaryRepository(store),
     )
+    fan_home_service = FanHomeService()
 
     return Container(
         store=store,
@@ -140,4 +143,5 @@ def build_container(settings: Settings) -> Container:
         resource_service=resource_service,
         transport_service=transport_service,
         live_ops_service=live_ops_service,
+        fan_home_service=fan_home_service,
     )

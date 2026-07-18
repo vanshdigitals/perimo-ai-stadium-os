@@ -64,6 +64,7 @@ export const FanAuth: React.FC = () => {
       footerText="Fan accounts are self-service and free for all ticket holders."
       errorMsg={errorMsg}
       demoCard={<DemoCredentialsCard role="Fan" email="fan@perimo.io" password="Fan@123" />}
+      backLink="/get-started#fan"
     >
       <div className="flex bg-surface-subtle rounded-full p-1 mb-6">
         <button

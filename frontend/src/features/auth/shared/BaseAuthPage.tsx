@@ -12,6 +12,7 @@ interface BaseAuthPageProps {
   footerText: string
   iconWrapperClass?: string
   errorMsg?: string
+  backLink?: string
 }
 
 export const BaseAuthPage: React.FC<BaseAuthPageProps> = ({
@@ -23,15 +24,16 @@ export const BaseAuthPage: React.FC<BaseAuthPageProps> = ({
   footerText,
   iconWrapperClass = "bg-surface-subtle text-text-muted",
   errorMsg,
-  demoCard
+  demoCard,
+  backLink = '/get-started'
 }) => {
   const navigate = useNavigate()
   const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' && !!demoCard;
 
   return (
     <AuthLayout wide={isDemo}>
-      <div 
-        onClick={() => navigate('/')} 
+      <div
+        onClick={() => navigate(backLink)}
         className="flex items-center gap-1.5 text-text-muted text-sm cursor-pointer mb-5 w-fit hover:text-text transition-colors"
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

@@ -50,6 +50,7 @@ export const FanRegistration: React.FC = () => {
       subtitle="Join Perimo to unlock AI-powered stadium experiences."
       footerText="Fan accounts are self-service and free for all ticket holders."
       errorMsg={errorMsg}
+      backLink="/get-started#fan"
     >
       <div className="flex bg-surface-subtle rounded-full p-1 mb-6">
         <button

@@ -48,6 +48,7 @@ export const AdminForgotPassword: React.FC = () => {
       subtitle="Enter the email address linked to your administrator account. We'll send a secure verification code."
       footerText="Only pre-approved administrator accounts can reset their password."
       errorMsg={errorMsg}
+      backLink="/get-started#command-center"
     >
       <form onSubmit={handleSubmit} noValidate>
         <Input

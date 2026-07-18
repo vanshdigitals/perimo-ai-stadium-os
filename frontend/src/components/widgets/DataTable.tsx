@@ -62,8 +62,8 @@ export function DataTable<T>({ columns, rows, keyField, emptyLabel = 'No records
     <div className="flex flex-col w-full h-full border border-[#E2E8F0] rounded-xl overflow-hidden bg-white shadow-sm">
       <div className="w-full overflow-x-auto perimo-scrollbar">
         <table className="w-full text-left text-[13px] border-collapse min-w-[600px]">
-          <thead>
-            <tr className="bg-[#F8FAFC] text-[#64748B] font-medium border-b border-[#E2E8F0]">
+          <thead className="sticky top-0 z-10">
+            <tr className="bg-[#F8FAFC]/95 backdrop-blur-sm text-[#64748B] font-medium border-b border-[#E2E8F0] shadow-sm">
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -92,7 +92,7 @@ export function DataTable<T>({ columns, rows, keyField, emptyLabel = 'No records
               <tr
                 key={keyField(row)}
                 onClick={() => onRowClick?.(row)}
-                className={cn("group hover:bg-[#F1F5F9] transition-colors", onRowClick ? "cursor-pointer active:bg-[#E2E8F0]" : "")}
+                className={cn("group hover:bg-[#F8FAFC] transition-colors", onRowClick ? "cursor-pointer active:bg-[#F1F5F9]" : "")}
               >
                 {columns.map((col) => (
                   <td key={col.key} className="px-4 py-3.5 text-[#334155] align-middle" style={{ textAlign: col.align ?? 'left' }}>

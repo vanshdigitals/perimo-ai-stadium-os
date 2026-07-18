@@ -22,8 +22,8 @@ export const LandingFooter: React.FC<{ isDark: boolean }> = ({ isDark }) => {
 
   return (
     <footer className={cn('border-t', isDark ? 'border-[#181D28] bg-[#080B11]' : 'border-[#E2E4E9] bg-[#FAFBFC]')}>
-      <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8 lg:px-16 xl:px-20">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_2.6fr]">
+      <div className="mx-auto max-w-[1340px] px-5 py-16 sm:px-8 lg:px-10">
+        <div className="grid gap-12 lg:grid-cols-[3fr_5fr] lg:gap-16">
           {/* Brand + newsletter */}
           <div>
             <Logo theme={isDark ? 'dark' : 'light'} />
@@ -31,11 +31,11 @@ export const LandingFooter: React.FC<{ isDark: boolean }> = ({ isDark }) => {
               The AI Operating System for modern stadium experiences — built for the world's biggest events.
             </p>
 
-            <form onSubmit={submit} className="mt-6 max-w-[340px]">
+            <form onSubmit={submit} className="mt-8 max-w-[340px]">
               <label htmlFor="footer-email" className={cn('text-[12.5px] font-semibold', isDark ? 'text-[#C7CDD6]' : 'text-[#334155]')}>
                 Stay in the loop
               </label>
-              <div className="mt-2 flex gap-2">
+              <div className="mt-3 flex items-center gap-2">
                 <input
                   id="footer-email"
                   type="email"
@@ -44,12 +44,12 @@ export const LandingFooter: React.FC<{ isDark: boolean }> = ({ isDark }) => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@organization.com"
                   className={cn(
-                    'h-11 flex-1 rounded-lg border px-3 text-[13.5px] outline-none transition-colors focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]',
+                    'h-12 flex-1 rounded-[10px] border px-3.5 text-[13.5px] outline-none transition-colors focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]',
                     isDark ? 'border-[#232838] bg-[#111622] text-white placeholder:text-[#5B6472]' : 'border-[#E2E4E9] bg-white text-[#0F172A] placeholder:text-[#94A3B8]',
                   )}
                 />
-                <button type="submit" aria-label="Subscribe" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#2563EB] text-white transition-colors hover:bg-[#1D4ED8] outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2">
-                  <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+                <button type="submit" aria-label="Subscribe" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] bg-[#2563EB] text-white transition-colors hover:bg-[#1D4ED8] outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2">
+                  <ArrowRight className="h-[18px] w-[18px]" strokeWidth={2.5} />
                 </button>
               </div>
               {subscribed && <p className="mt-2 text-[12.5px] font-medium text-[#16A34A]">Thanks — you're on the list.</p>}
@@ -57,7 +57,7 @@ export const LandingFooter: React.FC<{ isDark: boolean }> = ({ isDark }) => {
           </div>
 
           {/* Link columns */}
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-12 sm:grid-cols-3 lg:grid-cols-5">
             {FOOTER_COLUMNS.map((col) => (
               <div key={col.title}>
                 <h3 className={cn('text-[12.5px] font-bold uppercase tracking-[0.1em]', isDark ? 'text-[#6B7688]' : 'text-[#94A3B8]')}>{col.title}</h3>
@@ -74,7 +74,7 @@ export const LandingFooter: React.FC<{ isDark: boolean }> = ({ isDark }) => {
         </div>
 
         {/* Bottom bar */}
-        <div className={cn('mt-14 flex flex-col items-center justify-between gap-4 border-t pt-7 sm:flex-row', isDark ? 'border-[#181D28]' : 'border-[#E2E4E9]')}>
+        <div className={cn('mt-16 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row', isDark ? 'border-[#181D28]' : 'border-[#E2E4E9]')}>
           <p className={cn('text-[13px]', isDark ? 'text-[#6B7688]' : 'text-[#94A3B8]')}>© {new Date().getFullYear()} PERIMO · AI Stadium OS. All rights reserved.</p>
           <div className="flex items-center gap-2">
             {SOCIALS.map((s) => (

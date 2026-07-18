@@ -46,21 +46,21 @@ export const StaffQuickActions: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-[#E2E8F0] overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="p-3 border-b border-[#E2E8F0] bg-[#F8FAFC]">
-            <h3 className="text-[13px] font-bold text-[#0F172A] uppercase tracking-wider">Quick Actions</h3>
+        <div className="absolute right-0 top-full mt-2 w-[400px] bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-[#E2E8F0] overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="p-4 border-b border-[#F1F5F9] bg-[#F8FAFC]">
+            <h3 className="text-[11px] font-bold text-[#64748B] uppercase tracking-widest">Quick Actions</h3>
           </div>
-          <div className="p-2 grid grid-cols-1 gap-1 max-h-[400px] overflow-y-auto perimo-scrollbar">
+          <div className="p-3 grid grid-cols-2 gap-2">
             {actions.map((action, i) => (
               <button 
                 key={i}
                 onClick={() => handleAction(action.path)}
-                className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-[#F8FAFC] transition-colors text-left group"
+                className="flex flex-col items-center justify-center gap-2 w-full p-4 rounded-xl hover:bg-[#F8FAFC] transition-colors text-center group border border-transparent hover:border-[#E2E8F0]"
               >
-                <div className={cn("w-8 h-8 rounded-md flex items-center justify-center shrink-0", action.bg, action.color)}>
-                  <action.icon className="w-4 h-4" />
+                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110", action.bg, action.color)}>
+                  <action.icon className="w-5 h-5" />
                 </div>
-                <span className="text-[13px] font-medium text-[#0F172A] group-hover:text-[#2563EB] transition-colors">
+                <span className="text-[12px] font-bold text-[#0F172A] group-hover:text-blue-600 transition-colors">
                   {action.label}
                 </span>
               </button>

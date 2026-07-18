@@ -22,28 +22,28 @@ const fadeUp = (reduce: boolean | null, delay = 0) => ({
 
 const FloatingInfoCard: React.FC<{
   icon: LucideIcon; title: string; detail: string; tint: string;
-  position: string; delay: number; floatOffset: number; isDark: boolean; reduce: boolean | null;
-}> = ({ icon: Icon, title, detail, tint, position, delay, floatOffset, isDark, reduce }) => (
+  position: string; tabletHidden?: boolean; scale?: number; delay: number; floatOffset: number; isDark: boolean; reduce: boolean | null;
+}> = ({ icon: Icon, title, detail, tint, position, tabletHidden, scale = 1, delay, floatOffset, isDark, reduce }) => (
   <motion.div
-    initial={reduce ? false : { opacity: 0, scale: 0.9, y: 8 }}
-    animate={{ opacity: 1, scale: 1, y: 0 }}
-    transition={{ duration: 0.5, delay, ease: EASE }}
-    className={cn('absolute z-20 hidden sm:block', position)}
+    initial={reduce ? false : { opacity: 0, scale: 0.9 * scale, y: 12 }}
+    animate={{ opacity: 1, scale: 1 * scale, y: 0 }}
+    transition={{ duration: 0.6, delay, ease: EASE }}
+    className={cn('absolute z-20', tabletHidden ? 'hidden lg:block' : 'hidden sm:block', position)}
   >
     <motion.div
-      animate={reduce ? undefined : { y: [0, -7, 0] }}
-      transition={{ duration: 6.5 + floatOffset * 1.1, delay: 0.6 + floatOffset * 0.4, repeat: Infinity, ease: 'easeInOut' }}
+      animate={reduce ? undefined : { y: [0, -6, 0] }}
+      transition={{ duration: 6 + floatOffset * 1.2, delay: 0.5 + floatOffset * 0.3, repeat: Infinity, ease: 'easeInOut' }}
       className={cn(
-        'flex items-center gap-2.5 rounded-2xl border px-3.5 py-2.5 shadow-[0_12px_32px_-8px_rgba(15,23,42,0.18)] backdrop-blur-md',
-        isDark ? 'border-[#232838] bg-[#141822]/90' : 'border-black/[0.05] bg-white/90',
+        'flex items-center gap-3.5 rounded-xl border px-4 py-3 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.15)] backdrop-blur-md',
+        isDark ? 'border-[#232838] bg-[#141822]/90' : 'border-[#E2E4E9] bg-white/95',
       )}
     >
-      <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-xl', tint)}>
-        <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
+      <span className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl', tint)}>
+        <Icon className="h-5 w-5" strokeWidth={2} />
       </span>
-      <div className="min-w-0">
-        <div className={cn('text-[12.5px] font-semibold leading-tight', isDark ? 'text-white' : 'text-[#0F172A]')}>{title}</div>
-        <div className={cn('text-[11.5px] leading-tight', isDark ? 'text-[#9AA3B2]' : 'text-[#64748B]')}>{detail}</div>
+      <div className="min-w-0 pr-1">
+        <div className={cn('text-[14px] font-bold leading-tight tracking-tight', isDark ? 'text-white' : 'text-[#0F172A]')}>{title}</div>
+        <div className={cn('mt-0.5 text-[12px] font-medium leading-tight', isDark ? 'text-[#8A93A3]' : 'text-[#64748B]')}>{detail}</div>
       </div>
     </motion.div>
   </motion.div>
@@ -126,7 +126,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ isDark, onGetStarted, 
           initial={reduce ? false : { opacity: 0, scale: 0.96, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.24, ease: EASE }}
-          className="relative mx-auto mt-14 aspect-[16/11] w-full max-w-[720px] sm:mt-16"
+          className="relative mx-auto mt-8 aspect-[16/11] w-[115%] max-w-none -translate-x-[7.5%] sm:mt-12 sm:w-full sm:max-w-[840px] sm:translate-x-0"
         >
           <img
             src={isDark ? stadiumDark : stadiumLight}
@@ -140,9 +140,46 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ isDark, onGetStarted, 
             draggable={false}
           />
           {HERO_CARDS.map((c) => (
-            <FloatingInfoCard key={c.id} {...c} isDark={isDark} reduce={reduce} />
+            <FloatingInfoCard
+              key={c.id}
+              icon={c.icon}
+              title={c.title}
+              detail={c.detail}
+              tint={c.tint}
+              position={c.position}
+              tabletHidden={c.tabletHidden}
+              scale={c.scale}
+              floatOffset={c.floatOffset}
+              delay={c.delay}
+              isDark={isDark}
+              reduce={reduce}
+            />
           ))}
         </motion.div>
+
+        {/* ── Mobile Intelligence Row ───────────────────────────────── */}
+        <div className="mt-4 -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-6 pt-2 sm:hidden sm:scrollbar-hide">
+          {HERO_CARDS.map((c, i) => (
+            <motion.div
+              key={c.id}
+              initial={reduce ? false : { opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 + i * 0.05, ease: EASE }}
+              className={cn(
+                'flex w-[200px] shrink-0 snap-center items-center gap-3.5 rounded-xl border px-4 py-3 shadow-md',
+                isDark ? 'border-[#232838] bg-[#141822]' : 'border-[#E2E4E9] bg-white',
+              )}
+            >
+              <span className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl', c.tint)}>
+                <c.icon className="h-5 w-5" strokeWidth={2} />
+              </span>
+              <div className="min-w-0 text-left pr-1">
+                <div className={cn('text-[14px] font-bold leading-tight tracking-tight truncate', isDark ? 'text-white' : 'text-[#0F172A]')}>{c.title}</div>
+                <div className={cn('mt-0.5 text-[12px] font-medium leading-tight truncate', isDark ? 'text-[#8A93A3]' : 'text-[#64748B]')}>{c.detail}</div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

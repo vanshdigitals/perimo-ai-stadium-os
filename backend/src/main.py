@@ -27,6 +27,7 @@ from src.domains.resources.router import router as resources_router
 from src.domains.transportation.router import router as transport_router
 from src.domains.live_ops.router import router as live_ops_router
 from src.domains.copilot.router import router as copilot_router
+from src.domains.fan.router import router as fan_router
 from src.platform.websocket.gateway import router as ws_router, wire_eventbus
 from src.platform.audit.service import wire_audit
 from src.platform.analytics.service import wire_analytics
@@ -202,6 +203,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(transport_router, prefix=api)
     app.include_router(live_ops_router, prefix=api)
     app.include_router(copilot_router, prefix=api + "/copilot")
+    app.include_router(fan_router, prefix=api + "/fan")
     app.include_router(ws_router, prefix=api)
 
     # --- Wayfinding kernel routes (retained) ---

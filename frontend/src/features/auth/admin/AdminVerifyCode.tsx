@@ -49,6 +49,7 @@ export const AdminVerifyCode: React.FC = () => {
       subtitle={`We sent a 6-digit code to ${email || 'your email'}. Enter it below to continue.`}
       footerText="The code expires in 10 minutes."
       errorMsg={errorMsg}
+      backLink="/get-started#command-center"
     >
       <form onSubmit={handleSubmit} noValidate>
         <label className="block text-[13px] font-semibold text-[#344055] mb-2.5">

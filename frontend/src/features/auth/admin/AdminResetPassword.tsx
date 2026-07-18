@@ -64,6 +64,7 @@ export const AdminResetPassword: React.FC = () => {
       subtitle="Your new password must be different from previously used passwords."
       footerText="Only pre-approved administrator accounts can reset their password."
       errorMsg={errorMsg}
+      backLink="/get-started#command-center"
     >
       <form onSubmit={handleSubmit} noValidate>
         <PasswordInput

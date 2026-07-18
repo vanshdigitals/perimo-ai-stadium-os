@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { StaffLayout } from '@/components/layouts/StaffLayout'
-import { PageHeader, WidgetCard } from '@/components/widgets'
-import { DoorOpen, Users, Lock, Unlock, AlertTriangle, Search, Activity } from 'lucide-react'
+import { PageHeader, WidgetCard, EmptyState } from '@/components/widgets'
+import { DoorOpen, Users, Lock, Unlock, AlertTriangle, Search, Activity, ShieldAlert } from 'lucide-react'
 import { useApp } from '@/contexts/AppContext'
 import { cn } from '@/utils/cn'
 
@@ -56,7 +56,12 @@ export const StaffGateOps: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          {filtered.map(gate => (
+          {filtered.length === 0 ? (
+            <div className="col-span-1 xl:col-span-2">
+              <EmptyState icon={ShieldAlert} message="No gates found." hint="Try adjusting your search criteria." />
+            </div>
+          ) : (
+            filtered.map(gate => (
             <div key={gate.id} className={cn("p-5 rounded-xl border flex flex-col gap-5 transition-all", 
               gate.status === 'Lockdown' ? "border-red-300 bg-red-50/50" : 
               gate.status === 'Closed' ? "border-[#E2E8F0] bg-[#F8FAFC]" : "border-[#E2E8F0] bg-white")}>
@@ -122,7 +127,8 @@ export const StaffGateOps: React.FC = () => {
               </div>
 
             </div>
-          ))}
+            ))
+          )}
         </div>
       </WidgetCard>
     </StaffLayout>

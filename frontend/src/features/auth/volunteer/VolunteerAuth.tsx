@@ -85,6 +85,7 @@ export const VolunteerAuth: React.FC = () => {
       footerText="Volunteer accounts are created by your program coordinator."
       errorMsg={errorMsg}
       demoCard={<DemoCredentialsCard role="Volunteer" email="volunteer@perimo.io" password="Volunteer@123" />}
+      backLink="/get-started#volunteer"
     >
       {view === 'login' && (
         <form onSubmit={handleSubmitLogin} noValidate>

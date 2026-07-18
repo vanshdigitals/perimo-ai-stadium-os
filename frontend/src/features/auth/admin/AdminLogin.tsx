@@ -66,6 +66,7 @@ export const AdminLogin: React.FC = () => {
       footerText="Access is limited to pre-approved administrator accounts."
       errorMsg={errorMsg}
       demoCard={<DemoCredentialsCard role="Administrator" email="admin@perimo.io" password="Admin@123" />}
+      backLink="/get-started#command-center"
     >
       <form onSubmit={handleSubmit} noValidate>
         <Input

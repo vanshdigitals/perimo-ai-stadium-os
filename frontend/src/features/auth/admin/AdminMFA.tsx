@@ -55,6 +55,7 @@ export const AdminMFA: React.FC = () => {
       subtitle="Enter the 6-digit code from your authenticator app to access the Command Center."
       footerText="Multi-factor authentication is required for all administrator accounts."
       errorMsg={errorMsg}
+      backLink="/get-started#command-center"
     >
       {/* Dev hint */}
       <div className="bg-[#F5F7FF] border border-brand/15 rounded-xl p-3.5 mb-5">

@@ -58,8 +58,8 @@ export const StaffLayout: React.FC<StaffLayoutProps> = ({ children }) => {
         isMobileDrawer={isMobile || isTablet}
       />
 
-      <main className="flex-1 w-full pt-[72px] lg:pl-[72px] pb-[80px] md:pb-0">
-        <div className="max-w-[1600px] mx-auto p-4 md:p-6">
+      <main className="flex-1 w-full pt-[72px] lg:pl-[64px] pb-[80px] md:pb-0 transition-all">
+        <div className="max-w-[1920px] mx-auto p-4 sm:p-6 md:p-8">
           {children}
         </div>
       </main>
@@ -90,11 +90,11 @@ export const StaffLayout: React.FC<StaffLayoutProps> = ({ children }) => {
                 to={item.path}
                 className={cn(
                   "flex flex-col items-center justify-center w-full h-full gap-1 transition-colors",
-                  isActive ? "text-[#2563EB]" : "text-[#64748B] hover:text-[#0F172A]"
+                  isActive ? "text-[#0F172A]" : "text-[#64748B] hover:text-[#0F172A]"
                 )}
               >
-                <item.icon className={cn("w-6 h-6", isActive && "fill-[#2563EB]/10")} strokeWidth={isActive ? 2.5 : 2} />
-                <span className={cn("text-[10px] font-medium", isActive && "font-semibold")}>{item.label}</span>
+                <item.icon className={cn("w-6 h-6", isActive && "fill-[#0F172A]/10 scale-110 transition-transform")} strokeWidth={isActive ? 2.5 : 2} />
+                <span className={cn("text-[10px] font-medium", isActive && "font-bold tracking-wide")}>{item.label}</span>
               </Link>
             )
           })}

@@ -55,6 +55,7 @@ export const StaffAuth: React.FC = () => {
       footerText="Staff accounts are provisioned by your stadium operations administrator."
       errorMsg={errorMsg}
       demoCard={<DemoCredentialsCard role="Staff" email="staff@perimo.io" password="Staff@123" />}
+      backLink="/get-started#staff"
     >
       <form onSubmit={handleSubmit} noValidate>
         <Input name="email" type="email" label="Email" placeholder="you@perimo.io" required />

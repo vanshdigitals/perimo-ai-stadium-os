@@ -1,87 +1,152 @@
-# PERIMO AI Operating System
+# PERIMO AI Stadium OS
 
-![PERIMO Header](https://via.placeholder.com/1200x400/0F172A/FFFFFF?text=PERIMO+AI+Operating+System)
+PERIMO is an AI-powered smart stadium operating system for fans, volunteers, staff, and administrators. It combines public fan experiences, operational tooling, live intelligence, and authentication flows in one React + FastAPI codebase.
 
-PERIMO is a state-of-the-art AI Operating System built for Smart Stadiums & Tournament Operations. Designed to orchestrate live events, manage crowd intelligence, and provide digital twin visualization—all powered by modern AI copilot interactions.
+## Project Overview
 
-## 🚀 Features
-- **Live Operations Dashboard:** Real-time metrics for crowd density, system health, and throughput.
-- **Command Center:** Centralized widget-based architecture (Bento grid) for monitoring facility status.
-- **Digital Twin Visualization:** Integrated Google Maps layout for live positional tracking and facility layers.
-- **AI Operations Copilot:** Powered by Gemini AI, providing actionable intelligence and automated recommendations.
-- **Production-Ready Enterprise UX:** Global command palettes, focus trapping, fixed sidebar footers, and smooth scroll momentum.
+This repository contains the production frontend, the FastAPI backend, shared documentation, and deployment configuration for the PERIMO prompt challenge submission.
 
-## 🛠️ Tech Stack
-- **Frontend Framework:** React 19 + Vite
-- **Styling:** Tailwind CSS (v4) with a custom design system
-- **Routing:** React Router v7
-- **AI Integration:** Google Gemini SDK
-- **Maps:** Google Maps JavaScript API
-- **Icons:** Lucide React
-- **Linting:** oxlint
-- **TypeScript:** Strict Mode
+## Challenge Vertical
 
-## 📂 Project Structure
+Smart stadiums and tournament operations.
+
+## Architecture
+
+- `frontend/` contains the Vite + React 19 application.
+- `backend/` contains the FastAPI backend and tests.
+- `docs/` contains product and implementation documentation.
+- `shared/` contains shared assets and utilities used across the repo.
+
+## Features
+
+- Landing experience with role selection for fan, volunteer, staff, and admin entry points.
+- Fan experience with personalized navigation and live stadium information.
+- Volunteer workspace for task and shift coordination.
+- Staff operations dashboard for stadium control workflows.
+- Admin command center with MFA-protected access.
+- FastAPI backend with authentication, rate limiting, security headers, and health checks.
+
+## AI Features
+
+- Gemini-backed AI assistant paths where configured.
+- Offline-safe fallback behavior when AI keys are not present.
+- Live operations and recommendation surfaces designed for stadium decision support.
+
+## Technology Stack
+
+- Frontend: React 19, Vite, TypeScript, React Router, Tailwind CSS v4, Framer Motion
+- Backend: FastAPI, Pydantic v2, Python
+- Tooling: oxlint, pytest, Vercel
+
+## Installation
+
+### Frontend
+
+```bash
+cd PERIMO/frontend
+npm install
 ```
-PERIMO/
-├── frontend/           # React frontend application (Vite)
-│   ├── src/            # Source code (components, pages, contexts, features)
-│   ├── public/         # Static assets
-│   ├── package.json    # Frontend dependencies and scripts
-│   └── vite.config.ts  # Vite configuration
-├── backend/            # Backend services
-├── shared/             # Shared types and utilities
-├── infra/              # Infrastructure code
-└── docs/               # Project documentation
+
+### Backend
+
+```bash
+cd PERIMO/backend
+python -m pip install -r requirements.txt
 ```
 
-## ⚙️ Environment Variables
-The application requires the following environment variables. Do NOT commit real API keys to version control. See `frontend/.env.example` for reference.
+## Environment Variables
+
+Do not commit real secrets. Use environment variables in your hosting platform or local `.env` files.
+
+### Frontend
 
 ```env
-VITE_GOOGLE_MAPS_API_KEY=YOUR_GOOGLE_MAPS_API_KEY_HERE
-VITE_GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE
-VITE_WSS_ENDPOINT=wss://api.perimo.io/live
+VITE_API_BASE_URL=https://your-backend.example.com
+VITE_WSS_ENDPOINT=wss://your-backend.example.com/live
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_key
+VITE_GEMINI_API_KEY=your_gemini_key
+VITE_BACKUP_GEMINI_API_KEY=your_backup_gemini_key
+VITE_MAPBOX_ACCESS_TOKEN=your_mapbox_token
+VITE_DEMO_MODE=true
 ```
 
-## 💻 Local Development
+### Backend
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/vanshdigitals/perimo-ai-stadium-os.git
-   cd perimo-ai-stadium-os/frontend
-   ```
+```env
+JWT_SECRET=replace_with_a_strong_secret
+GEMINI_API_KEY=optional
+BACKUP_GEMINI_API_KEY=optional
+FIRESTORE_PROJECT_ID=optional
+FIRESTORE_EMULATOR_HOST=optional
+ALLOWED_ORIGINS=https://your-frontend.example.com
+SEED_ADMIN_EMAIL=admin@example.com
+SEED_ADMIN_PASSWORD=replace_me
+SEED_ADMIN_NAME=Operations Admin
+```
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+## Running Frontend
 
-3. **Configure Environment:**
-   Copy `.env.example` to `.env` and fill in your API keys.
-
-4. **Start the Development Server:**
-   ```bash
-   npm run dev
-   ```
-
-## 🏗️ Build & Deployment
-
-### Manual Build
-To create a production build locally:
 ```bash
-cd frontend
-npm run build
+cd PERIMO/frontend
+npm run dev
 ```
 
-### Vercel Deployment
-This repository is configured for seamless deployment on Vercel.
+## Running Backend
 
-1. Import the repository in your Vercel Dashboard.
-2. In the **Framework Preset**, select `Vite`.
-3. Set the **Root Directory** to `frontend`.
-4. Add the required Environment Variables in the Vercel UI.
-5. Click **Deploy**.
+```bash
+cd PERIMO/backend
+python -m uvicorn src.main:app --reload --port 8099
+```
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Testing
+
+```bash
+cd PERIMO/frontend
+npm run build
+npm run lint
+```
+
+```bash
+cd PERIMO/backend
+python -m pytest -q
+```
+
+## Deployment
+
+- Frontend: deploy the `frontend/` directory on Vercel.
+- Backend: deploy FastAPI to your production Python host and set the frontend base URL and websocket URL to the live backend.
+- Make sure CORS, health checks, JWT secrets, and AI keys are configured before release.
+
+## Folder Structure
+
+```text
+PERIMO/
+├── backend/
+├── docs/
+├── frontend/
+├── infra/
+├── scripts/
+└── shared/
+```
+
+## Screenshots
+
+Add production screenshots here after final release for Landing, Role Selection, Fan, Volunteer, Staff, and Admin.
+
+## Future Scope
+
+- Production backend URL wiring for live WebSocket feeds.
+- Expanded observability and incident reporting.
+- Further performance tuning for large-screen command center views.
+
+## License
+
+See [LICENSE](LICENSE).
+
+## Author
+
+PERIMO / PromptWars Challenge 4 submission.
+
+## GitHub
+
+Repository: https://github.com/vanshdigitals/perimo-ai-stadium-os

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/utils/cn';
@@ -34,11 +35,11 @@ const Sub: React.FC<{ children: React.ReactNode; isDark: boolean }> = ({ childre
   <p className={cn('mt-4 text-[16.5px] leading-[1.7]', isDark ? 'text-[#9AA3B2]' : 'text-[#5B6472]')}>{children}</p>
 );
 
-const wrap = 'mx-auto max-w-[1200px] px-5 sm:px-8 lg:px-16 xl:px-20';
+const wrap = 'mx-auto max-w-[1340px] px-5 sm:px-8 lg:px-10';
 
 // ── Why PERIMO ────────────────────────────────────────────────────────────────
 export const WhyPerimo: React.FC<{ isDark: boolean }> = ({ isDark }) => (
-  <section className={cn('py-20 sm:py-28', isDark ? 'bg-[#0A0E14]' : 'bg-white')}>
+  <section className={cn('py-16 sm:py-24', isDark ? 'bg-[#0A0E14]' : 'bg-white')}>
     <div className={wrap}>
       <Reveal className="mx-auto max-w-[720px] text-center">
         <Eyebrow isDark={isDark}>Why PERIMO</Eyebrow>
@@ -64,36 +65,45 @@ export const WhyPerimo: React.FC<{ isDark: boolean }> = ({ isDark }) => (
 );
 
 // ── Platform Overview (ecosystem) ─────────────────────────────────────────────
-export const PlatformOverview: React.FC<{ isDark: boolean }> = ({ isDark }) => (
-  <section id="platform" className={cn('scroll-mt-24 py-20 sm:py-28', isDark ? 'bg-[#080B11]' : 'bg-[#F8FAFC]')}>
-    <div className={wrap}>
-      <Reveal className="mx-auto max-w-[720px] text-center">
-        <Eyebrow isDark={isDark}>The ecosystem</Eyebrow>
-        <Heading isDark={isDark}>One platform, four experiences</Heading>
-        <Sub isDark={isDark}>Fans, volunteers, staff and administrators each get a purpose-built experience — all sharing the same real-time source of truth.</Sub>
-      </Reveal>
+export const PlatformOverview: React.FC<{ isDark: boolean }> = ({ isDark }) => {
+  const navigate = useNavigate();
+  return (
+    <section id="platform" className={cn('scroll-mt-24 py-16 sm:py-24', isDark ? 'bg-[#080B11]' : 'bg-[#F8FAFC]')}>
+      <div className={wrap}>
+        <Reveal className="mx-auto max-w-[720px] text-center">
+          <Eyebrow isDark={isDark}>The ecosystem</Eyebrow>
+          <Heading isDark={isDark}>One platform, four experiences</Heading>
+          <Sub isDark={isDark}>Fans, volunteers, staff and administrators each get a purpose-built experience — all sharing the same real-time source of truth.</Sub>
+        </Reveal>
 
-      <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-        {ECOSYSTEM.map((r, i) => (
-          <Reveal key={r.name} delay={i * 0.06}>
-            <div className={cn('group relative h-full overflow-hidden rounded-2xl border p-6 transition-all duration-200 hover:-translate-y-1', isDark ? 'border-[#1C2230] bg-[#111622]' : 'border-[#E8ECF1] bg-white hover:shadow-[0_16px_40px_-16px_rgba(15,23,42,0.16)]')}>
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ backgroundColor: `${r.accent}1a`, color: r.accent }}>
-                <r.icon className="h-6 w-6" strokeWidth={2} />
-              </span>
-              <h3 className={cn('mt-5 text-[17px] font-semibold', isDark ? 'text-white' : 'text-[#0F172A]')}>{r.name}</h3>
-              <p className={cn('mt-2 text-[14px] leading-[1.6]', isDark ? 'text-[#8A93A3]' : 'text-[#64748B]')}>{r.blurb}</p>
-              <div className="mt-5 h-1 w-10 rounded-full transition-all duration-300 group-hover:w-16" style={{ backgroundColor: r.accent }} />
-            </div>
-          </Reveal>
-        ))}
+        <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {ECOSYSTEM.map((r, i) => (
+            <Reveal key={r.name} delay={i * 0.06}>
+              <div
+                onClick={() => navigate(`/get-started#${r.hash}`)}
+                className={cn('group relative h-full overflow-hidden rounded-2xl border p-6 transition-all duration-200 hover:-translate-y-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]', isDark ? 'border-[#1C2230] bg-[#111622]' : 'border-[#E8ECF1] bg-white hover:shadow-[0_16px_40px_-16px_rgba(15,23,42,0.16)]')}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && navigate(`/get-started#${r.hash}`)}
+              >
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ backgroundColor: `${r.accent}1a`, color: r.accent }}>
+                  <r.icon className="h-6 w-6" strokeWidth={2} />
+                </span>
+                <h3 className={cn('mt-5 text-[17px] font-semibold', isDark ? 'text-white' : 'text-[#0F172A]')}>{r.name}</h3>
+                <p className={cn('mt-2 text-[14px] leading-[1.6]', isDark ? 'text-[#8A93A3]' : 'text-[#64748B]')}>{r.blurb}</p>
+                <div className="mt-5 h-1 w-10 rounded-full transition-all duration-300 group-hover:w-16" style={{ backgroundColor: r.accent }} />
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 // ── AI Capabilities ───────────────────────────────────────────────────────────
 export const AICapabilities: React.FC<{ isDark: boolean }> = ({ isDark }) => (
-  <section id="ai" className={cn('scroll-mt-24 py-20 sm:py-28', isDark ? 'bg-[#0A0E14]' : 'bg-white')}>
+  <section id="ai" className={cn('scroll-mt-24 py-16 sm:py-24', isDark ? 'bg-[#0A0E14]' : 'bg-white')}>
     <div className={wrap}>
       <Reveal className="mx-auto max-w-[720px] text-center">
         <Eyebrow isDark={isDark}>AI capabilities</Eyebrow>
@@ -122,7 +132,7 @@ export const AICapabilities: React.FC<{ isDark: boolean }> = ({ isDark }) => (
 
 // ── How It Works ──────────────────────────────────────────────────────────────
 export const HowItWorks: React.FC<{ isDark: boolean }> = ({ isDark }) => (
-  <section className={cn('py-20 sm:py-28', isDark ? 'bg-[#080B11]' : 'bg-[#F8FAFC]')}>
+  <section className={cn('py-16 sm:py-24', isDark ? 'bg-[#080B11]' : 'bg-[#F8FAFC]')}>
     <div className={wrap}>
       <Reveal className="mx-auto max-w-[720px] text-center">
         <Eyebrow isDark={isDark}>How it works</Eyebrow>
@@ -146,7 +156,7 @@ export const HowItWorks: React.FC<{ isDark: boolean }> = ({ isDark }) => (
 
 // ── Security ──────────────────────────────────────────────────────────────────
 export const SecuritySection: React.FC<{ isDark: boolean }> = ({ isDark }) => (
-  <section id="security" className={cn('scroll-mt-24 py-20 sm:py-28', isDark ? 'bg-[#0A0E14]' : 'bg-white')}>
+  <section id="security" className={cn('scroll-mt-24 py-16 sm:py-24', isDark ? 'bg-[#0A0E14]' : 'bg-white')}>
     <div className={wrap}>
       <div className="grid items-center gap-12 lg:grid-cols-2">
         <Reveal>
@@ -174,7 +184,7 @@ export const SecuritySection: React.FC<{ isDark: boolean }> = ({ isDark }) => (
 
 // ── Stats band ────────────────────────────────────────────────────────────────
 export const StatsBand: React.FC<{ isDark: boolean }> = ({ isDark }) => (
-  <section className={cn('py-16 sm:py-20', isDark ? 'bg-[#080B11]' : 'bg-[#0B0F19]')}>
+  <section className={cn('py-12 sm:py-16', isDark ? 'bg-[#080B11]' : 'bg-[#0B0F19]')}>
     <div className={wrap}>
       <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
         {STATS.map((s, i) => (
@@ -192,7 +202,7 @@ export const StatsBand: React.FC<{ isDark: boolean }> = ({ isDark }) => (
 export const FAQSection: React.FC<{ isDark: boolean }> = ({ isDark }) => {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section id="faq" className={cn('scroll-mt-24 py-20 sm:py-28', isDark ? 'bg-[#0A0E14]' : 'bg-white')}>
+    <section id="faq" className={cn('scroll-mt-24 pt-16 pb-8 sm:pt-24 sm:pb-12', isDark ? 'bg-[#0A0E14]' : 'bg-white')}>
       <div className="mx-auto max-w-[820px] px-5 sm:px-8">
         <Reveal className="text-center">
           <Eyebrow isDark={isDark}>FAQ</Eyebrow>
@@ -230,7 +240,7 @@ export const FAQSection: React.FC<{ isDark: boolean }> = ({ isDark }) => {
 export const FinalCTA: React.FC<{ isDark: boolean; onGetStarted: () => void }> = ({ isDark, onGetStarted }) => {
   const reduce = useReducedMotion();
   return (
-    <section className={cn('px-5 py-20 sm:py-24', isDark ? 'bg-[#0A0E14]' : 'bg-white')}>
+    <section className={cn('px-5 pt-8 pb-16 sm:pt-12 sm:pb-24', isDark ? 'bg-[#0A0E14]' : 'bg-white')}>
       <Reveal className="mx-auto max-w-[1080px]">
         <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#1D4ED8] via-[#2563EB] to-[#6B4EFF] px-6 py-16 text-center sm:px-12">
           <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
