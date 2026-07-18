@@ -83,33 +83,26 @@
     display: none !important;
   }
 
-  /* Enterprise Scrollbar */
+  /* Completely Hide All Scrollbars Globally */
+  * {
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* IE and Edge */
+  }
+
+  ::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  
+  /* Retain classes for backward compatibility if hardcoded somewhere */
   .perimo-scrollbar {
     -webkit-overflow-scrolling: touch;
   }
-  .perimo-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  .perimo-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .perimo-scrollbar::-webkit-scrollbar-thumb {
-    background: #CBD5E1;
-    border-radius: 4px;
-  }
-  .perimo-scrollbar:hover::-webkit-scrollbar-thumb {
-    background: #94A3B8;
+  .utility-scrollbar {
+    -webkit-overflow-scrolling: touch;
   }
 }
-
-
-/* Utility Panel Custom Scrollbar */
-.utility-scrollbar::-webkit-scrollbar { width: 4px; }
-.utility-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.utility-scrollbar::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
-.utility-scrollbar:hover::-webkit-scrollbar-thumb { background: #CBD5E1; }
-.utility-scrollbar::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
 /* Fan App Utilities */
 .hide-scrollbar {

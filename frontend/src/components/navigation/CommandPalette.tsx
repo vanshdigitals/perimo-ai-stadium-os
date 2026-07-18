@@ -204,7 +204,7 @@ export const CommandPalette: React.FC = () => {
             </div>
 
             {/* Results Area */}
-            <div className="flex flex-col max-h-[400px] overflow-y-auto scrollbar-none p-2">
+            <div className="flex flex-col max-h-[400px] overflow-y-auto p-2">
               {flatItems.length === 0 ? (
                 <div className="py-12 text-center flex flex-col items-center justify-center">
                   <Search className="w-8 h-8 text-[#E2E8F0] mb-3" />

@@ -74,7 +74,7 @@ export const WidgetCard: React.FC<WidgetCardProps> = ({
       <div 
         ref={scrollRef}
         className={cn(
-          'flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-thumb]:bg-[#CBD5E1] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-[#94A3B8]', 
+          'flex-1 min-h-0 overflow-y-auto', 
           !noPadding && 'p-5', 
           bodyClassName
         )}
