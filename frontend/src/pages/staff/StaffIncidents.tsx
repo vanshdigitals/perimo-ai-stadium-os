@@ -97,10 +97,10 @@ export const StaffIncidents: React.FC = () => {
             </button>
           ) : row.status === 'Responding' ? (
             <>
-              <button className="h-8 w-8 flex items-center justify-center rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0] text-[#475569] hover:bg-[#F1F5F9] transition-colors" title="Radio Command">
+              <button onClick={(e) => { e.stopPropagation(); toast({ type: 'info', title: 'Radio Command', message: `Opening a voice channel to Command for ${row.id}.` }); }} className="h-8 w-8 flex items-center justify-center rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0] text-[#475569] hover:bg-[#F1F5F9] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]" title="Radio Command" aria-label="Radio Command">
                 <Radio className="w-4 h-4" />
               </button>
-              <button className="h-8 w-8 flex items-center justify-center rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0] text-[#475569] hover:bg-[#F1F5F9] transition-colors" title="Capture Evidence">
+              <button onClick={(e) => { e.stopPropagation(); toast({ type: 'success', title: 'Evidence capture', message: `Camera ready — attach photos to ${row.id}.` }); }} className="h-8 w-8 flex items-center justify-center rounded-[6px] bg-[#F8FAFC] border border-[#E2E8F0] text-[#475569] hover:bg-[#F1F5F9] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]" title="Capture Evidence" aria-label="Capture Evidence">
                 <Camera className="w-4 h-4" />
               </button>
               <button onClick={(e) => { e.stopPropagation(); handleResolve(row.id) }} className="h-8 px-4 rounded-[6px] bg-[#10B981] text-white text-[12px] font-semibold hover:bg-[#059669] transition-colors flex items-center gap-1.5">

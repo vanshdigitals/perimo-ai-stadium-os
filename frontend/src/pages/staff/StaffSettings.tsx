@@ -80,10 +80,10 @@ export const StaffSettings: React.FC = () => {
                 <Shield className="w-5 h-5 text-[#64748B]" /> Account Security
               </h3>
               <div className="flex flex-col gap-4">
-                <button className="h-10 px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#0F172A] text-[13px] font-medium hover:bg-[#F8FAFC] transition-colors text-left w-full sm:w-auto">
+                <button onClick={() => toast({ type: 'info', title: 'Change password', message: 'A password reset link has been sent to your registered email.' })} className="h-10 px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#0F172A] text-[13px] font-medium hover:bg-[#F8FAFC] transition-colors text-left w-full sm:w-auto outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]">
                   Change Password
                 </button>
-                <button className="h-10 px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#0F172A] text-[13px] font-medium hover:bg-[#F8FAFC] transition-colors text-left w-full sm:w-auto">
+                <button onClick={() => toast({ type: 'info', title: 'Two-factor authentication', message: '2FA management opens here in the full release.' })} className="h-10 px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#0F172A] text-[13px] font-medium hover:bg-[#F8FAFC] transition-colors text-left w-full sm:w-auto outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]">
                   Manage Two-Factor Authentication
                 </button>
               </div>

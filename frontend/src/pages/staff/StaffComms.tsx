@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { StaffLayout } from '@/components/layouts/StaffLayout'
 import { PageHeader, WidgetCard } from '@/components/widgets'
 import { Hash, Search, AlertTriangle, Mic, Send, Pin, MicOff, MoreVertical } from 'lucide-react'
+import { useApp } from '@/contexts/AppContext'
 import { cn } from '@/utils/cn'
 
 interface Message {
@@ -14,6 +15,7 @@ interface Message {
 }
 
 export const StaffComms: React.FC = () => {
+  const { toast } = useApp()
   const [activeChannel, setActiveChannel] = useState('ops-general')
   const [msg, setMsg] = useState('')
   const [isMuted, setIsMuted] = useState(false)
@@ -106,7 +108,7 @@ export const StaffComms: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
                 <input type="text" placeholder="Search..." className="w-48 h-9 pl-9 pr-3 rounded-md border border-[#E2E8F0] text-[13px] outline-none focus:border-[#2563EB]" />
               </div>
-              <button className="w-9 h-9 flex items-center justify-center text-[#64748B] hover:bg-[#E2E8F0] rounded-md transition-colors"><MoreVertical className="w-5 h-5" /></button>
+              <button onClick={() => toast({ type: 'info', title: `#${activeChannel}`, message: 'Channel options — mute, pin, and participant management open here.' })} aria-label="Channel options" className="w-9 h-9 flex items-center justify-center text-[#64748B] hover:bg-[#E2E8F0] rounded-md transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"><MoreVertical className="w-5 h-5" /></button>
             </div>
           </div>
 

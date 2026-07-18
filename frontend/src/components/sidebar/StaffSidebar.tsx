@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react'
 import { 
   LayoutDashboard, CheckSquare, AlertTriangle, Map, DoorOpen, Users, 
-  ScanLine, Clock, Radio, Bell, PackagePlus, Navigation, 
-  UserSquare, FileText, PhoneCall, Settings, HelpCircle 
+  ScanLine, Clock, Radio, Bell, PackagePlus, Navigation,
+  UserSquare, FileText, PhoneCall, Settings
 } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { Drawer } from '@/components/navigation/Drawer'
@@ -40,7 +40,6 @@ const ADMIN_GROUP = {
     { label: 'Reports', icon: FileText, path: '/staff/reports' },
     { label: 'Emergency Mode', icon: PhoneCall, path: '/staff/emergency' },
     { label: 'Settings', icon: Settings, path: '/staff/settings' },
-    { label: 'Help', icon: HelpCircle, path: '/staff/help' },
   ]
 }
 

@@ -3,10 +3,12 @@ import { StaffLayout } from '@/components/layouts/StaffLayout'
 import { PageHeader, WidgetCard } from '@/components/widgets'
 import { PhoneCall, ShieldAlert, AlertOctagon, HeartPulse, Shield, Map } from 'lucide-react'
 import { useApp } from '@/contexts/AppContext'
+import { useNavigate } from 'react-router-dom'
 import { cn } from '@/utils/cn'
 
 export const StaffEmergency: React.FC = () => {
   const { toast } = useApp()
+  const navigate = useNavigate()
   const [sosActive, setSosActive] = useState(false)
   const [sosCountdown, setSosCountdown] = useState(3)
   const [isHolding, setIsHolding] = useState(false)
@@ -92,7 +94,10 @@ export const StaffEmergency: React.FC = () => {
           <WidgetCard title="Emergency Protocols" icon={ShieldAlert} iconColor="#475569">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               
-              <button className="flex flex-col items-center justify-center p-6 bg-white border border-[#E2E8F0] rounded-2xl hover:border-blue-500 hover:shadow-md transition-all group text-center">
+              <button
+                onClick={() => { toast({ type: 'info', title: 'Evacuation routes', message: 'Opening the map with nearest exits and assembly points.' }); navigate('/staff/map'); }}
+                className="flex flex-col items-center justify-center p-6 bg-white border border-[#E2E8F0] rounded-2xl hover:border-blue-500 hover:shadow-md transition-all group text-center outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
+              >
                 <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                   <Map className="w-8 h-8" />
                 </div>
@@ -100,7 +105,10 @@ export const StaffEmergency: React.FC = () => {
                 <p className="text-[12px] text-[#64748B]">View nearest emergency exits and assembly points.</p>
               </button>
 
-              <button className="flex flex-col items-center justify-center p-6 bg-white border border-[#E2E8F0] rounded-2xl hover:border-red-500 hover:shadow-md transition-all group text-center">
+              <button
+                onClick={() => toast({ type: 'info', title: 'Medical protocol', message: 'CABC: Check response · Airway · Breathing · Circulation. Nearest AED: Concourse B, Gate 4.' })}
+                className="flex flex-col items-center justify-center p-6 bg-white border border-[#E2E8F0] rounded-2xl hover:border-red-500 hover:shadow-md transition-all group text-center outline-none focus-visible:ring-2 focus-visible:ring-[#DC2626]"
+              >
                 <div className="w-16 h-16 rounded-full bg-red-50 text-red-600 flex items-center justify-center mb-4 group-hover:bg-red-600 group-hover:text-white transition-colors">
                   <HeartPulse className="w-8 h-8" />
                 </div>
@@ -108,7 +116,10 @@ export const StaffEmergency: React.FC = () => {
                 <p className="text-[12px] text-[#64748B]">First aid steps and AED locations in your zone.</p>
               </button>
 
-              <button className="flex flex-col items-center justify-center p-6 bg-white border border-[#E2E8F0] rounded-2xl hover:border-orange-500 hover:shadow-md transition-all group text-center">
+              <button
+                onClick={() => toast({ type: 'warning', title: 'Active threat — RUN · HIDE · FIGHT', message: 'Evacuate if safe, otherwise shelter, lock/barricade, silence devices, and await all-clear from Command.' })}
+                className="flex flex-col items-center justify-center p-6 bg-white border border-[#E2E8F0] rounded-2xl hover:border-orange-500 hover:shadow-md transition-all group text-center outline-none focus-visible:ring-2 focus-visible:ring-[#D68A00]"
+              >
                 <div className="w-16 h-16 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition-colors">
                   <Shield className="w-8 h-8" />
                 </div>
@@ -116,7 +127,10 @@ export const StaffEmergency: React.FC = () => {
                 <p className="text-[12px] text-[#64748B]">Lockdown procedures and shelter-in-place guide.</p>
               </button>
 
-              <button className="flex flex-col items-center justify-center p-6 bg-white border border-[#E2E8F0] rounded-2xl hover:border-slate-800 hover:shadow-md transition-all group text-center">
+              <button
+                onClick={() => toast({ type: 'info', title: 'Emergency contacts', message: 'Command Center ext. 5000 · Security ext. 5100 · Medical ext. 5200 · Fire/Rescue 911.' })}
+                className="flex flex-col items-center justify-center p-6 bg-white border border-[#E2E8F0] rounded-2xl hover:border-slate-800 hover:shadow-md transition-all group text-center outline-none focus-visible:ring-2 focus-visible:ring-[#0F172A]"
+              >
                 <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center mb-4 group-hover:bg-slate-800 group-hover:text-white transition-colors">
                   <PhoneCall className="w-8 h-8" />
                 </div>
