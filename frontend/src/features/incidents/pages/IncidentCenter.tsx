@@ -17,6 +17,7 @@ import {
   ChartSkeleton,
 } from '@/components/widgets';
 import type { TimelineEvent } from '@/components/widgets';
+import { CreateIncidentModal } from '@/components/modals/QuickActionModals';
 import { useIncidents } from '@/features/incidents/useIncidents';
 import type { Incident } from '@/features/incidents/api';
 
@@ -40,6 +41,7 @@ const TEAM_TONE = (status: string): 'warning' | 'info' | 'success' =>
 export const IncidentCenter: React.FC = () => {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('all');
+  const [reportOpen, setReportOpen] = useState(false);
   const { data, loading, error, refetch } = useIncidents();
 
   // --- Loading state ---
@@ -97,7 +99,7 @@ export const IncidentCenter: React.FC = () => {
         subtitle="Triage, dispatch, and resolve venue incidents in one queue."
         live
         actions={
-          <button className="h-[36px] px-4 rounded-[8px] bg-[#2563EB] text-white font-medium text-[13px] hover:bg-[#1D4ED8] transition-colors flex items-center gap-2">
+          <button onClick={() => setReportOpen(true)} className="h-[36px] px-4 rounded-[8px] bg-[#2563EB] text-white font-medium text-[13px] hover:bg-[#1D4ED8] transition-colors flex items-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2">
             <AlertTriangle className="w-3.5 h-3.5" /> Report Incident
           </button>
         }
@@ -220,6 +222,8 @@ export const IncidentCenter: React.FC = () => {
           </WidgetCard>
         </div>
       </div>
+
+      <CreateIncidentModal open={reportOpen} onClose={() => setReportOpen(false)} />
     </AdminLayout>
   );
 };

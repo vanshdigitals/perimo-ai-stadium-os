@@ -134,6 +134,7 @@ interface AppContextType {
   markAllRead: () => void;
   togglePin: (id: string) => void;
   archiveNotification: (id: string) => void;
+  unarchiveNotification: (id: string) => void;
   deleteNotification: (id: string) => void;
 
   // Toast
@@ -215,6 +216,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, archived: true } : n));
   }, []);
 
+  const unarchiveNotification = useCallback((id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, archived: false } : n));
+  }, []);
+
   const deleteNotification = useCallback((id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   }, []);
@@ -241,7 +246,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       theme, setTheme,
       notifications, unreadCount,
       addNotification, markRead, markAllRead,
-      togglePin, archiveNotification, deleteNotification,
+      togglePin, archiveNotification, unarchiveNotification, deleteNotification,
       toasts, toast, dismissToast,
     }}>
       {children}

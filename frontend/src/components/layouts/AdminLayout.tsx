@@ -4,6 +4,7 @@ import { AdminSidebar } from '@/components/sidebar/AdminSidebar'
 import { AdminHeader } from '@/components/header/AdminHeader'
 import { UtilityPanel } from '@/features/utility-panel/components/UtilityPanel'
 import { Backdrop } from '@/components/navigation/Backdrop'
+import { MobileExperienceGate } from '@/components/layouts/MobileExperienceGate'
 import { authService } from '@/features/auth/services/authService'
 
 interface AdminLayoutProps {
@@ -45,6 +46,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC] font-sans text-[#0F172A]">
+
+      {/* Small-screen recommendation (non-blocking; admin panel only) */}
+      <MobileExperienceGate />
 
       {/* Header ALWAYS 100% and Fixed at Top */}
       <AdminHeader

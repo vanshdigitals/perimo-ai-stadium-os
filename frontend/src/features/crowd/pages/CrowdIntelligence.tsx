@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { HeaderActionButton } from '@/components/ui/HeaderActionButton';
 import { UsersRound, TrendingUp, MapPin, Flame, Download } from 'lucide-react';
 import { useLiveUpdates } from '@/features/digital-twin/hooks/useLiveUpdates';
 import {
@@ -71,9 +72,7 @@ export const CrowdIntelligence: React.FC = () => {
         subtitle="Predictive density analysis, flow rates, and congestion forecasting."
         live
         actions={
-          <button className="h-[36px] px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#475569] font-medium text-[13px] hover:bg-[#F1F5F9] transition-colors flex items-center gap-2">
-            <Download className="w-3.5 h-3.5" /> Export Snapshot
-          </button>
+          <HeaderActionButton label="Export Snapshot" icon={Download} toastTitle="Snapshot exported" toastMessage="Crowd intelligence snapshot is being prepared for download." />
         }
       />
 

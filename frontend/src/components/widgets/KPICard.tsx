@@ -65,16 +65,21 @@ export const KPICard: React.FC<KPICardProps> = ({
 const Sparkline: React.FC<{ data: number[]; color: string }> = ({ data, color }) => {
   const w = 64;
   const h = 24;
+  const padX = 2;
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
-  const points = data
-    .map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * (h - 4) - 2}`)
-    .join(' ');
+  const coords = data.map((v, i) => ({
+    x: data.length === 1 ? w / 2 : padX + (i / (data.length - 1)) * (w - padX * 2),
+    y: h - ((v - min) / range) * (h - 4) - 2,
+  }));
+  const points = coords.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const last = coords[coords.length - 1];
 
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="shrink-0" aria-hidden="true">
-      <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity={0.8} />
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="shrink-0 overflow-visible" aria-hidden="true">
+      <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity={0.85} />
+      {last && <circle cx={last.x} cy={last.y} r="1.6" fill={color} />}
     </svg>
   );
 };

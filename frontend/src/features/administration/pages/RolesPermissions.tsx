@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { HeaderActionButton } from '@/components/ui/HeaderActionButton';
 import { ShieldCheck, Plus, Users, Layers } from 'lucide-react';
 import { PageHeader, StatusStrip, KPICard, WidgetCard, DataTable } from '@/components/widgets';
 
@@ -43,9 +44,7 @@ export const RolesPermissions: React.FC = () => {
         title="Roles & Permissions"
         subtitle="Configure RBAC rules and per-module access."
         actions={
-          <button className="h-[36px] px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#475569] font-medium text-[13px] hover:bg-[#F1F5F9] transition-colors flex items-center gap-2">
-            <Plus className="w-3.5 h-3.5" /> Custom Role
-          </button>
+          <HeaderActionButton label="Custom Role" icon={Plus} toastType="info" toastTitle="Create a custom role" toastMessage="Custom role creation opens here in the full release." />
         }
       />
 

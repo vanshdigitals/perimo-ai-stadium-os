@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
 import { BellRing, CheckCircle2, AlertTriangle, Info, Bell } from 'lucide-react';
 import { PageHeader, StatusStrip, KPICard, WidgetCard, FilterBar, StatusPill, EmptyState, ErrorState, RowsSkeleton } from '@/components/widgets';
@@ -16,6 +17,7 @@ export const Notifications: React.FC = () => {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('all');
   const { data, loading, error, refetch } = useNotifications();
+  const navigate = useNavigate();
 
   const handleMarkAll = async () => {
     try {
@@ -128,7 +130,7 @@ export const Notifications: React.FC = () => {
                     <div className="flex items-center gap-2 mt-2">
                       <StatusPill label={n.category} tone={cfg.tone} />
                       {n.action && (
-                        <button className="text-[11px] font-semibold text-[#2563EB] hover:text-[#1D4ED8] transition-colors">{n.action}</button>
+                        <button onClick={() => navigate('/admin/incidents')} className="text-[11px] font-semibold text-[#2563EB] hover:text-[#1D4ED8] transition-colors outline-none focus-visible:underline">{n.action}</button>
                       )}
                     </div>
                   </div>

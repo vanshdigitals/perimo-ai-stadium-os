@@ -1,5 +1,6 @@
 import React from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { HeaderActionButton } from '@/components/ui/HeaderActionButton';
 import { Layers, Settings, Cpu, Camera, Truck, Route } from 'lucide-react';
 import { DigitalTwinWidget } from '@/features/digital-twin/components/DigitalTwinWidget';
 import { PageHeader, StatusStrip, WidgetCard, StatusPill, Timeline } from '@/components/widgets';
@@ -43,12 +44,8 @@ export const DigitalTwinOverview: React.FC = () => {
         live
         actions={
           <>
-            <button className="h-[36px] px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#475569] font-medium text-[13px] hover:bg-[#F1F5F9] transition-colors flex items-center gap-2">
-              <Layers className="w-3.5 h-3.5" /> Layers
-            </button>
-            <button className="h-[36px] px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#475569] font-medium text-[13px] hover:bg-[#F1F5F9] transition-colors flex items-center gap-2">
-              <Settings className="w-3.5 h-3.5" /> Settings
-            </button>
+            <HeaderActionButton label="Layers" icon={Layers} toastType="info" toastTitle="Layer controls" toastMessage="Toggle sensor, asset and camera layers here in the full release." />
+            <HeaderActionButton label="Settings" icon={Settings} toastType="info" toastTitle="Twin settings" toastMessage="Digital Twin display settings open here in the full release." />
           </>
         }
       />

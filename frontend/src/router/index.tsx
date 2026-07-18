@@ -64,8 +64,21 @@ const FanFacilities = React.lazy(() => import('@/pages/fan/FanFacilities').then(
 
 // Staff Routes
 const StaffDashboard = React.lazy(() => import('@/pages/staff/StaffDashboard').then(m => ({ default: m.StaffDashboard })));
+const StaffTasks = React.lazy(() => import('@/pages/staff/StaffTasks').then(m => ({ default: m.StaffTasks })));
 const StaffIncidents = React.lazy(() => import('@/pages/staff/StaffIncidents').then(m => ({ default: m.StaffIncidents })));
 const StaffMap = React.lazy(() => import('@/pages/staff/StaffMap').then(m => ({ default: m.StaffMap })));
+const StaffGateOps = React.lazy(() => import('@/pages/staff/StaffGateOps').then(m => ({ default: m.StaffGateOps })));
+const StaffCrowd = React.lazy(() => import('@/pages/staff/StaffCrowd').then(m => ({ default: m.StaffCrowd })));
+const StaffScanner = React.lazy(() => import('@/pages/staff/StaffScanner').then(m => ({ default: m.StaffScanner })));
+const StaffShift = React.lazy(() => import('@/pages/staff/StaffShift').then(m => ({ default: m.StaffShift })));
+const StaffComms = React.lazy(() => import('@/pages/staff/StaffComms').then(m => ({ default: m.StaffComms })));
+const StaffNotifications = React.lazy(() => import('@/pages/staff/StaffNotifications').then(m => ({ default: m.StaffNotifications })));
+const StaffResources = React.lazy(() => import('@/pages/staff/StaffResources').then(m => ({ default: m.StaffResources })));
+const StaffPatrol = React.lazy(() => import('@/pages/staff/StaffPatrol').then(m => ({ default: m.StaffPatrol })));
+const StaffProfile = React.lazy(() => import('@/pages/staff/StaffProfile').then(m => ({ default: m.StaffProfile })));
+const StaffReports = React.lazy(() => import('@/pages/staff/StaffReports').then(m => ({ default: m.StaffReports })));
+const StaffEmergency = React.lazy(() => import('@/pages/staff/StaffEmergency').then(m => ({ default: m.StaffEmergency })));
+const StaffSettings = React.lazy(() => import('@/pages/staff/StaffSettings').then(m => ({ default: m.StaffSettings })));
 
 // Volunteer Routes
 const VolunteerDashboard = React.lazy(() => import('@/pages/volunteer/VolunteerDashboard').then(m => ({ default: m.VolunteerDashboard })));
@@ -143,8 +156,21 @@ export const AppRouter = () => {
 
           {/* ── Protected Staff Routes ────────────────────────────── */}
           <Route path="/staff" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffDashboard /></RoleProtectedRoute>} />
+          <Route path="/staff/tasks" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffTasks /></RoleProtectedRoute>} />
           <Route path="/staff/incidents" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffIncidents /></RoleProtectedRoute>} />
           <Route path="/staff/map" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffMap /></RoleProtectedRoute>} />
+          <Route path="/staff/gates" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffGateOps /></RoleProtectedRoute>} />
+          <Route path="/staff/crowd" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffCrowd /></RoleProtectedRoute>} />
+          <Route path="/staff/scanner" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffScanner /></RoleProtectedRoute>} />
+          <Route path="/staff/shifts" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffShift /></RoleProtectedRoute>} />
+          <Route path="/staff/comms" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffComms /></RoleProtectedRoute>} />
+          <Route path="/staff/notifications" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffNotifications /></RoleProtectedRoute>} />
+          <Route path="/staff/resources" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffResources /></RoleProtectedRoute>} />
+          <Route path="/staff/patrol" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffPatrol /></RoleProtectedRoute>} />
+          <Route path="/staff/profile" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffProfile /></RoleProtectedRoute>} />
+          <Route path="/staff/reports" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffReports /></RoleProtectedRoute>} />
+          <Route path="/staff/emergency" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffEmergency /></RoleProtectedRoute>} />
+          <Route path="/staff/settings" element={<RoleProtectedRoute allowedRoles={['staff']}><StaffSettings /></RoleProtectedRoute>} />
 
           {/* ── Protected Volunteer Routes ────────────────────────── */}
           <Route path="/volunteer" element={<RoleProtectedRoute allowedRoles={['volunteer']}><VolunteerDashboard /></RoleProtectedRoute>} />

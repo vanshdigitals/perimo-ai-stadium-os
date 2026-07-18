@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { HeaderActionButton } from '@/components/ui/HeaderActionButton';
 import { LifeBuoy, Ticket, Clock, Star, Users, Plus } from 'lucide-react';
 import { PageHeader, StatusStrip, KPICard, WidgetCard, DataTable, StatusPill, FilterBar, DonutChart } from '@/components/widgets';
 
@@ -45,9 +46,7 @@ export const Support: React.FC = () => {
         title="Support"
         subtitle="Ticket queue, SLA compliance, and support team availability."
         actions={
-          <button className="h-[36px] px-4 rounded-[8px] bg-[#2563EB] text-white font-medium text-[13px] hover:bg-[#1D4ED8] transition-colors flex items-center gap-2">
-            <Plus className="w-3.5 h-3.5" /> New Ticket
-          </button>
+          <HeaderActionButton label="New Ticket" icon={Plus} variant="primary" toastType="info" toastTitle="New support ticket" toastMessage="Ticket creation opens here in the full release." />
         }
       />
 

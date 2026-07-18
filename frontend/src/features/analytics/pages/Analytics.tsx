@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { HeaderActionButton } from '@/components/ui/HeaderActionButton';
 import { TrendingUp, DollarSign, Users, Activity, Download } from 'lucide-react';
 import { PageHeader, KPICard, WidgetCard, AreaLineChart, BarChart, DonutChart, DataTable } from '@/components/widgets';
 
@@ -45,9 +46,7 @@ export const Analytics: React.FC = () => {
               <option value="30">Last 30 Days</option>
               <option value="1">Event Day Only</option>
             </select>
-            <button className="h-[36px] px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#475569] font-medium text-[13px] hover:bg-[#F1F5F9] transition-colors flex items-center gap-2">
-              <Download className="w-3.5 h-3.5" /> Export
-            </button>
+            <HeaderActionButton label="Export" icon={Download} toastTitle="Export started" toastMessage="Analytics report is being prepared for download." />
           </>
         }
       />

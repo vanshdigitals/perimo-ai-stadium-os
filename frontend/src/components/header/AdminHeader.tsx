@@ -43,8 +43,13 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onToggleSidebar, onTog
   const location = useLocation();
 
   const breadcrumb = useMemo(() => {
-    const defaultNav = { category: 'Operations', page: 'Command Center' };
-    return ROUTE_MAP[location.pathname] || defaultNav;
+    if (ROUTE_MAP[location.pathname]) return ROUTE_MAP[location.pathname];
+
+    const segments = location.pathname.split('/').filter(Boolean);
+    const lastSegment = segments[segments.length - 1] || 'Dashboard';
+    const pageName = lastSegment.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+    return { category: 'App', page: pageName };
   }, [location.pathname]);
 
   return (

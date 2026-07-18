@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { HeaderActionButton } from '@/components/ui/HeaderActionButton';
 import { UserPlus, Users, ShieldCheck, Clock, UserX } from 'lucide-react';
 import { PageHeader, StatusStrip, KPICard, WidgetCard, DataTable, StatusPill, FilterBar } from '@/components/widgets';
 
@@ -39,9 +40,7 @@ export const UserManagement: React.FC = () => {
         title="User Management"
         subtitle="Manage system access, active users, and staff accounts."
         actions={
-          <button className="h-[36px] px-4 rounded-[8px] bg-[#2563EB] text-white font-medium text-[13px] hover:bg-[#1D4ED8] transition-colors flex items-center gap-2">
-            <UserPlus className="w-3.5 h-3.5" /> Add User
-          </button>
+          <HeaderActionButton label="Add User" icon={UserPlus} variant="primary" toastType="info" toastTitle="Invite a user" toastMessage="User invitations open here in the full release." />
         }
       />
 

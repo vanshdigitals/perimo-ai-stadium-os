@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { ExportReportModal, BroadcastAlertModal } from '@/components/modals/QuickActionModals';
 
 // Strips
 import { PlatformHealthStrip } from '@/features/command-center/components/PlatformHealthStrip';
@@ -42,6 +43,8 @@ import { useLiveUpdates } from '@/features/digital-twin/hooks/useLiveUpdates';
  */
 export const AdminDashboard: React.FC = () => {
   const { gates } = useLiveUpdates();
+  const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isBroadcastOpen, setIsBroadcastOpen] = useState(false);
 
   return (
     <AdminLayout>
@@ -52,6 +55,7 @@ export const AdminDashboard: React.FC = () => {
         </h1>
         <div className="flex items-center gap-2 shrink-0">
           <button
+            onClick={() => setIsExportOpen(true)}
             className="h-[36px] px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#475569] font-medium text-[13px]
                        hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors duration-200 outline-none
                        focus-visible:ring-2 focus-visible:ring-[#2563EB]"
@@ -59,6 +63,7 @@ export const AdminDashboard: React.FC = () => {
             Export Report
           </button>
           <button
+            onClick={() => setIsBroadcastOpen(true)}
             className="h-[36px] px-4 rounded-[8px] bg-[#2563EB] text-white font-medium text-[13px]
                        hover:bg-[#1D4ED8] transition-colors duration-200 outline-none border-none
                        focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
@@ -120,6 +125,9 @@ export const AdminDashboard: React.FC = () => {
           <ResourceDeploymentPanel />
         </div>
       </div>
+      
+      <ExportReportModal open={isExportOpen} onClose={() => setIsExportOpen(false)} />
+      <BroadcastAlertModal open={isBroadcastOpen} onClose={() => setIsBroadcastOpen(false)} />
     </AdminLayout>
   );
 };

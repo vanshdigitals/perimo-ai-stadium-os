@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { HeaderActionButton } from '@/components/ui/HeaderActionButton';
 import { Radio, Power, Wifi, Thermometer, Droplets, Camera, Download, ChevronRight, RefreshCcw, Activity } from 'lucide-react';
 import { useLiveUpdates } from '@/features/digital-twin/hooks/useLiveUpdates';
 import {
@@ -66,9 +67,7 @@ export const LiveOperations: React.FC = () => {
         subtitle="Real-time command view across every stadium system."
         live
         actions={
-          <button className="h-[36px] px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#475569] font-medium text-[13px] hover:bg-[#F1F5F9] transition-colors flex items-center gap-2">
-            <Download className="w-3.5 h-3.5" /> Export Report
-          </button>
+          <HeaderActionButton label="Export Report" icon={Download} toastTitle="Export started" toastMessage="Live operations report is being prepared for download." />
         }
       />
 

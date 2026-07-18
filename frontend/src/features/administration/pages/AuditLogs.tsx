@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { HeaderActionButton } from '@/components/ui/HeaderActionButton';
 import { Download, FileClock, ShieldCheck, Bot, UserCog } from 'lucide-react';
 import { PageHeader, StatusStrip, KPICard, WidgetCard, DataTable, StatusPill, FilterBar } from '@/components/widgets';
 
@@ -42,9 +43,7 @@ export const AuditLogs: React.FC = () => {
         title="Audit Logs"
         subtitle="Immutable ledger of all system actions, configurations, and AI decisions."
         actions={
-          <button className="h-[36px] px-4 rounded-[8px] border border-[#E2E8F0] bg-white text-[#475569] font-medium text-[13px] hover:bg-[#F1F5F9] transition-colors flex items-center gap-2">
-            <Download className="w-3.5 h-3.5" /> Export CSV
-          </button>
+          <HeaderActionButton label="Export CSV" icon={Download} toastTitle="Export started" toastMessage="Audit log CSV is being prepared for download." />
         }
       />
 

@@ -438,7 +438,7 @@ export const EmergencyLockdownModal: React.FC<{ open: boolean; onClose: () => vo
       ) : (
         <div className="flex flex-col gap-4">
           <div className="p-4 bg-[#FEF2F2] border border-[#FECACA] rounded-[10px]">
-            <p className="text-[13px] font-semibold text-[#991B1B] mb-1">⚠ Destructive Action</p>
+            <p className="text-[13px] font-semibold text-[#991B1B] mb-1 flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} /> Destructive Action</p>
             <p className="text-[12px] text-[#B91C1C] leading-relaxed">This will immediately suspend all non-emergency gate access, lock down all sectors, and alert all security teams. This action will be logged and audited.</p>
           </div>
           <Field label="Type LOCKDOWN to confirm">

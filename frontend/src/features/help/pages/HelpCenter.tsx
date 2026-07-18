@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { HeaderActionButton } from '@/components/ui/HeaderActionButton';
 import { LifeBuoy, MessageCircle, BookOpen, Star, Search, Mail } from 'lucide-react';
 import { PageHeader, StatusStrip, KPICard, WidgetCard, StatusPill, EmptyState } from '@/components/widgets';
 
@@ -112,9 +113,7 @@ export const HelpCenter: React.FC = () => {
               <span className="text-[13px] font-medium text-[#334155]">Live Chat</span>
               <StatusPill label="Online" tone="success" dot />
             </div>
-            <button className="w-full h-[36px] bg-[#2563EB] text-white rounded-[8px] text-[13px] font-medium hover:bg-[#1D4ED8] transition-colors">
-              Start a Conversation
-            </button>
+            <HeaderActionButton label="Start a Conversation" variant="primary" fullWidth toastType="info" toastTitle="Live chat" toastMessage="Live chat with our support team opens here in the full release." />
           </WidgetCard>
         </div>
       </div>

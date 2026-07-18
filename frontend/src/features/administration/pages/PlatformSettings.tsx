@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
+import { HeaderActionButton } from '@/components/ui/HeaderActionButton';
 import { Globe, Shield, Database, Webhook, Wifi, Server, Bell } from 'lucide-react';
 import { PageHeader, StatusStrip, KPICard, WidgetCard, StatusPill } from '@/components/widgets';
 
@@ -90,7 +91,7 @@ export const PlatformSettings: React.FC = () => {
                 </div>
               </div>
               <div className="pt-4 border-t border-[#E2E8F0] flex justify-end">
-                <button className="px-5 py-2 bg-[#2563EB] text-white rounded-[8px] text-[13px] font-medium hover:bg-[#1D4ED8] transition-colors">Save Changes</button>
+                <HeaderActionButton label="Save Changes" variant="primary" toastTitle="Settings saved" toastMessage="Your platform settings have been updated." />
               </div>
             </div>
           </WidgetCard>

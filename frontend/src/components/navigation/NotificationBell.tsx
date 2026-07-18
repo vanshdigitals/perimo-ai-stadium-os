@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, AlertTriangle, AlertCircle, Info, CheckCircle2, Check, Pin, X, Archive, Search } from 'lucide-react';
+import { Bell, AlertTriangle, AlertCircle, Info, CheckCircle2, Check, Pin, X, Archive, ArchiveRestore, Search } from 'lucide-react';
 import { useOverlay } from '@/contexts/OverlayContext';
 import { useApp } from '@/contexts/AppContext';
 import type { AppNotification } from '@/contexts/AppContext';
@@ -15,12 +15,14 @@ const ICONS = {
 
 export const NotificationCenter: React.FC = () => {
   const { isOpen, toggle, containerRef } = useOverlay('notifications');
-  const { notifications, unreadCount, markRead, markAllRead, togglePin, archiveNotification, deleteNotification, language } = useApp();
-  const [activeTab, setActiveTab] = useState<'All' | 'Unread' | 'Pinned'>('All');
+  const { notifications, unreadCount, markRead, markAllRead, togglePin, archiveNotification, unarchiveNotification, deleteNotification, language } = useApp();
+  const [activeTab, setActiveTab] = useState<'All' | 'Unread' | 'Pinned' | 'Archived'>('All');
   const [search, setSearch] = useState('');
 
+  const archivedCount = notifications.filter(n => n.archived).length;
+
   const displayed = notifications
-    .filter(n => !n.archived)
+    .filter(n => (activeTab === 'Archived' ? n.archived : !n.archived))
     .filter(n => {
       if (activeTab === 'Unread') return !n.read;
       if (activeTab === 'Pinned') return n.pinned;
@@ -45,10 +47,10 @@ export const NotificationCenter: React.FC = () => {
         <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
         {unreadCount > 0 && (
           <>
-            <span className="absolute top-[7px] right-[7px] min-w-[16px] h-[16px] rounded-full bg-[#EF4444] border-2 border-white z-10 flex items-center justify-center">
-              <span className="text-[9px] font-bold text-white leading-none">{unreadCount > 9 ? '9+' : unreadCount}</span>
+            <span className="absolute top-[5px] right-[5px] min-w-[14px] h-[14px] px-[3px] rounded-full bg-[#EF4444] ring-2 ring-white z-10 flex items-center justify-center tabular-nums">
+              <span className="text-[8px] font-semibold text-white leading-none">{unreadCount > 9 ? '9+' : unreadCount}</span>
             </span>
-            <span className="absolute top-[7px] right-[7px] w-[16px] h-[16px] rounded-full bg-[#EF4444] animate-ping" style={{ animationDuration: '3s' }} />
+            <span className="absolute top-[5px] right-[5px] w-[14px] h-[14px] rounded-full bg-[#EF4444] opacity-60 motion-safe:animate-ping motion-reduce:hidden" style={{ animationDuration: '3s' }} aria-hidden="true" />
           </>
         )}
       </button>
@@ -85,22 +87,31 @@ export const NotificationCenter: React.FC = () => {
           </div>
 
           {/* Tabs */}
-          <div className="flex px-4 border-b border-[#E2E8F0]">
-            {(['All', 'Unread', 'Pinned'] as const).map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={cn(
-                  'px-2 py-2.5 mr-3 text-[13px] font-medium border-b-2 transition-colors flex items-center gap-1.5',
-                  activeTab === tab ? 'border-[#2563EB] text-[#0F172A]' : 'border-transparent text-[#64748B] hover:text-[#0F172A]'
-                )}
-              >
-                {tab === 'Unread' ? t('notif.unread', language) : tab === 'All' ? t('notif.all', language) : 'Pinned'}
-                {tab === 'Unread' && unreadCount > 0 && (
-                  <span className="bg-[#E2E8F0] text-[#475569] text-[10px] px-1.5 rounded-full">{unreadCount}</span>
-                )}
-              </button>
-            ))}
+          <div className="flex px-4 border-b border-[#E2E8F0] overflow-x-auto">
+            {(['All', 'Unread', 'Pinned', 'Archived'] as const).map(tab => {
+              const count = tab === 'Unread' ? unreadCount : tab === 'Archived' ? archivedCount : 0;
+              const labels: Record<typeof tab, string> = {
+                All: t('notif.all', language),
+                Unread: t('notif.unread', language),
+                Pinned: 'Pinned',
+                Archived: 'Archived',
+              };
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={cn(
+                    'px-2 py-2.5 mr-3 text-[13px] font-medium border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0',
+                    activeTab === tab ? 'border-[#2563EB] text-[#0F172A]' : 'border-transparent text-[#64748B] hover:text-[#0F172A]'
+                  )}
+                >
+                  {labels[tab]}
+                  {(tab === 'Unread' || tab === 'Archived') && count > 0 && (
+                    <span className="bg-[#E2E8F0] text-[#475569] text-[10px] px-1.5 rounded-full">{count}</span>
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           {/* List */}
@@ -111,7 +122,7 @@ export const NotificationCenter: React.FC = () => {
                 <p className="text-[13px] text-[#64748B]">{t('notif.empty', language)}</p>
               </div>
             ) : (
-              displayed.map(n => <NotifItem key={n.id} n={n} language={language} onMarkRead={() => markRead(n.id)} onTogglePin={() => togglePin(n.id)} onArchive={() => archiveNotification(n.id)} onDelete={() => deleteNotification(n.id)} />)
+              displayed.map(n => <NotifItem key={n.id} n={n} language={language} onMarkRead={() => markRead(n.id)} onTogglePin={() => togglePin(n.id)} onArchive={() => archiveNotification(n.id)} onUnarchive={() => unarchiveNotification(n.id)} onDelete={() => deleteNotification(n.id)} />)
             )}
           </div>
         </div>
@@ -126,8 +137,9 @@ const NotifItem: React.FC<{
   onMarkRead: () => void;
   onTogglePin: () => void;
   onArchive: () => void;
+  onUnarchive: () => void;
   onDelete: () => void;
-}> = ({ n, language, onMarkRead, onTogglePin, onArchive, onDelete }) => {
+}> = ({ n, language, onMarkRead, onTogglePin, onArchive, onUnarchive, onDelete }) => {
   const cfg = ICONS[n.type];
   const Icon = cfg.icon;
 
@@ -167,13 +179,23 @@ const NotifItem: React.FC<{
             >
               <Pin className="w-3.5 h-3.5" />
             </button>
-            <button
-              onClick={e => { e.stopPropagation(); onArchive(); }}
-              title={t('notif.archive', language)}
-              className="p-1 rounded-[6px] bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
-            >
-              <Archive className="w-3.5 h-3.5" />
-            </button>
+            {n.archived ? (
+              <button
+                onClick={e => { e.stopPropagation(); onUnarchive(); }}
+                title="Restore"
+                className="p-1 rounded-[6px] bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#2563EB] hover:bg-[#EFF6FF] transition-colors"
+              >
+                <ArchiveRestore className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <button
+                onClick={e => { e.stopPropagation(); onArchive(); }}
+                title={t('notif.archive', language)}
+                className="p-1 rounded-[6px] bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
+              >
+                <Archive className="w-3.5 h-3.5" />
+              </button>
+            )}
             <button
               onClick={e => { e.stopPropagation(); onDelete(); }}
               className="p-1 rounded-[6px] bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#E5342B] hover:bg-[#FEF2F2] transition-colors"
