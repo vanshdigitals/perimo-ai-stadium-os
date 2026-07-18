@@ -6,7 +6,8 @@ import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 import { RoleProtectedRoute } from '@/features/auth/components/RoleProtectedRoute';
 
 // Lazy loading all pages/views to drastically reduce initial bundle size!
-const RoleSelection = React.lazy(() => import('@/pages/RoleSelection').then(m => ({ default: m.RoleSelection })));
+const Landing = React.lazy(() => import('@/pages/Landing').then(m => ({ default: m.Landing })));
+const GetStarted = React.lazy(() => import('@/pages/GetStarted').then(m => ({ default: m.GetStarted })));
 const Success = React.lazy(() => import('@/pages/Success').then(m => ({ default: m.Success })));
 // Fan Auth Overhaul
 const FanAuth = React.lazy(() => import('@/features/auth/fan/FanAuth').then(m => ({ default: m.FanAuth })));
@@ -97,7 +98,8 @@ export const AppRouter = () => {
       <Suspense fallback={<FallbackLoader />}>
         <Routes>
           {/* ── Public ────────────────────────────────────────────── */}
-          <Route path="/" element={<RoleSelection />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/get-started" element={<GetStarted />} />
           <Route path="/auth/success" element={<Success />} />
 
           {/* ── Fan Auth ──────────────────────────────────────────── */}
