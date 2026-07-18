@@ -58,7 +58,7 @@ const Documentation = React.lazy(() => import('@/features/documentation/pages/Do
 const Support = React.lazy(() => import('@/features/support/pages/Support').then(m => ({ default: m.Support })));
 
 // Fan Routes
-const FanDashboard = React.lazy(() => import('@/pages/fan/FanDashboard').then(m => ({ default: m.FanDashboard })));
+const FanHome = React.lazy(() => import('@/pages/fan/FanHome').then(m => ({ default: m.FanHome })));
 const FanMap = React.lazy(() => import('@/pages/fan/FanMap').then(m => ({ default: m.FanMap })));
 const FanTransport = React.lazy(() => import('@/pages/fan/FanTransport').then(m => ({ default: m.FanTransport })));
 const FanFacilities = React.lazy(() => import('@/pages/fan/FanFacilities').then(m => ({ default: m.FanFacilities })));
@@ -89,6 +89,18 @@ const VolunteerMap = React.lazy(() => import('@/pages/volunteer/VolunteerMap').t
 const FallbackLoader = () => (
   <div className="flex h-screen w-full items-center justify-center bg-[#F8FAFC]">
     <div className="w-8 h-8 rounded-full border-4 border-[#2563EB] border-t-transparent animate-spin"></div>
+  </div>
+);
+
+const StubPage = ({ title }: { title: string }) => (
+  <div className="flex flex-col h-[80vh] items-center justify-center text-center p-6">
+    <div className="w-16 h-16 bg-[#2563EB]/20 text-[#60A5FA] rounded-2xl flex items-center justify-center mb-4">
+      <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    </div>
+    <h1 className="text-2xl font-bold text-white mb-2">{title}</h1>
+    <p className="text-white/60">This module is part of a future implementation batch.</p>
   </div>
 );
 
@@ -151,9 +163,19 @@ export const AppRouter = () => {
           <Route path="/admin/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
 
           {/* ── Protected Fan Routes ──────────────────────────────── */}
-          <Route path="/fan" element={<RoleProtectedRoute allowedRoles={['fan']}><FanDashboard /></RoleProtectedRoute>} />
+          <Route path="/fan" element={<RoleProtectedRoute allowedRoles={['fan']}><FanHome /></RoleProtectedRoute>} />
+          <Route path="/fan/ticket" element={<RoleProtectedRoute allowedRoles={['fan']}><StubPage title="Digital Ticket" /></RoleProtectedRoute>} />
           <Route path="/fan/map" element={<RoleProtectedRoute allowedRoles={['fan']}><FanMap /></RoleProtectedRoute>} />
+          <Route path="/fan/explore" element={<RoleProtectedRoute allowedRoles={['fan']}><StubPage title="Explore Stadium" /></RoleProtectedRoute>} />
+          <Route path="/fan/food" element={<RoleProtectedRoute allowedRoles={['fan']}><StubPage title="Food & Beverage" /></RoleProtectedRoute>} />
+          <Route path="/fan/store" element={<RoleProtectedRoute allowedRoles={['fan']}><StubPage title="Shopping" /></RoleProtectedRoute>} />
           <Route path="/fan/transportation" element={<RoleProtectedRoute allowedRoles={['fan']}><FanTransport /></RoleProtectedRoute>} />
+          <Route path="/fan/parking" element={<RoleProtectedRoute allowedRoles={['fan']}><StubPage title="Parking" /></RoleProtectedRoute>} />
+          <Route path="/fan/emergency" element={<RoleProtectedRoute allowedRoles={['fan']}><StubPage title="Emergency" /></RoleProtectedRoute>} />
+          <Route path="/fan/notifications" element={<RoleProtectedRoute allowedRoles={['fan']}><StubPage title="Notifications" /></RoleProtectedRoute>} />
+          <Route path="/fan/profile" element={<RoleProtectedRoute allowedRoles={['fan']}><StubPage title="Profile" /></RoleProtectedRoute>} />
+          <Route path="/fan/settings" element={<RoleProtectedRoute allowedRoles={['fan']}><StubPage title="Settings" /></RoleProtectedRoute>} />
+          <Route path="/fan/ai" element={<RoleProtectedRoute allowedRoles={['fan']}><StubPage title="AI Companion" /></RoleProtectedRoute>} />
           <Route path="/fan/facilities" element={<RoleProtectedRoute allowedRoles={['fan']}><FanFacilities /></RoleProtectedRoute>} />
 
           {/* ── Protected Staff Routes ────────────────────────────── */}
