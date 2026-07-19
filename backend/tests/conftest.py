@@ -57,3 +57,48 @@ def base_payload() -> dict:
         "accessibility_needs": ["none"],
         "minutes_to_kickoff": 20,
     }
+
+
+# --- Authentication helpers (shared across API/permission tests) -------------
+
+# Seeded credentials (see src/bootstrap/container.py). The admin uses MFA; the
+# demo operators (staff/volunteer/fan) sign in directly.
+ADMIN_EMAIL = "admin@perimo.io"
+ADMIN_PASSWORD = "Admin@123"
+DEMO_PASSWORD = "Perimo!2026"
+ROLE_EMAILS = {
+    "admin": ADMIN_EMAIL,
+    "staff": "staff@perimo.io",
+    "volunteer": "volunteer@perimo.io",
+    "fan": "fan@perimo.io",
+}
+
+
+def login_token(client: TestClient, role: str = "admin") -> str:
+    """Return a valid access token for the given seeded role."""
+    email = ROLE_EMAILS[role]
+    if role == "admin":
+        challenge = client.post(
+            "/v1/auth/login", json={"email": email, "password": ADMIN_PASSWORD}
+        ).json()["challenge_token"]
+        res = client.post(
+            "/v1/auth/mfa/verify", json={"challenge_token": challenge, "code": "123456"}
+        )
+    else:
+        res = client.post("/v1/auth/login", json={"email": email, "password": DEMO_PASSWORD})
+    assert res.status_code == 200, res.text
+    return res.json()["access_token"]
+
+
+def auth_headers(client: TestClient, role: str = "admin") -> dict[str, str]:
+    return {"Authorization": f"Bearer {login_token(client, role)}"}
+
+
+@pytest.fixture
+def admin_headers(client: TestClient) -> dict[str, str]:
+    return auth_headers(client, "admin")
+
+
+@pytest.fixture
+def fan_headers(client: TestClient) -> dict[str, str]:
+    return auth_headers(client, "fan")

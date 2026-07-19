@@ -12,7 +12,7 @@ class AnalyticsService:
 
     async def handle_event(self, event: DomainEvent):
         # Update metrics based on event type
-        self.metrics[f"total_events"] += 1
+        self.metrics["total_events"] += 1
         self.metrics[f"event_{event.event_type}"] += 1
         
         # Specific business metrics

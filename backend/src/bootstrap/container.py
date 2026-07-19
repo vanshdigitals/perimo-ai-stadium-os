@@ -45,6 +45,7 @@ from src.domains.live_ops.repository import (
 )
 from src.domains.live_ops.service import LiveOpsService
 from src.domains.fan.home.service import FanHomeService
+from src.domains.copilot.service import CopilotService
 from src.platform.eventbus.bus import EventBus
 from src.platform.firestore.store import DocumentStore, build_store
 from src.security.auth.passwords import hash_password
@@ -70,6 +71,39 @@ class Container:
     transport_service: TransportService
     live_ops_service: LiveOpsService
     fan_home_service: FanHomeService
+    copilot_service: CopilotService
+
+
+# Non-admin demo operators, so every role in the stadium (fan/volunteer/staff)
+# can obtain a real backend token. Passwords are demo-only and clearly marked;
+# override or remove for production. MFA is disabled for these so the fan/staff
+# login flows work in a single step, matching the "instant access" fan UX.
+_DEMO_OPERATORS: tuple[tuple[str, str, str, UserRole], ...] = (
+    ("usr_staff", "staff@perimo.io", "Staff Operator", UserRole.staff),
+    ("usr_volunteer", "volunteer@perimo.io", "Volunteer Coordinator", UserRole.volunteer),
+    ("usr_fan", "fan@perimo.io", "Stadium Fan", UserRole.fan),
+)
+_DEMO_PASSWORD = "Perimo!2026"
+
+
+def _seed_users(settings: Settings, users: UserRepository) -> None:
+    """Seed the admin plus one operator per non-admin role (idempotent)."""
+    _seed_admin(settings, users)
+    for uid, email, name, role in _DEMO_OPERATORS:
+        if users.get_by_email(email) is not None:
+            continue
+        users.save(
+            User(
+                id=uid,
+                email=email,
+                display_name=name,
+                role=role,
+                status=UserStatus.active,
+                password_hash=hash_password(_DEMO_PASSWORD),
+                mfa_enabled=False,
+            )
+        )
+        logger.info("Seeded %s user %s.", role.value, email)
 
 
 def _seed_admin(settings: Settings, users: UserRepository) -> None:
@@ -101,7 +135,7 @@ def build_container(settings: Settings) -> Container:
 
     users = UserRepository(store)
     sessions = SessionRepository(store)
-    _seed_admin(settings, users)
+    _seed_users(settings, users)
     auth_service = AuthService(settings, users, sessions)
 
     facilities_service = FacilitiesService(
@@ -131,6 +165,7 @@ def build_container(settings: Settings) -> Container:
         summary_repo=LiveOpsSummaryRepository(store),
     )
     fan_home_service = FanHomeService()
+    copilot_service = CopilotService()
 
     return Container(
         store=store,
@@ -144,4 +179,5 @@ def build_container(settings: Settings) -> Container:
         transport_service=transport_service,
         live_ops_service=live_ops_service,
         fan_home_service=fan_home_service,
+        copilot_service=copilot_service,
     )

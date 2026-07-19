@@ -125,6 +125,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.transport_service = container.transport_service
     app.state.live_ops_service = container.live_ops_service
     app.state.fan_home_service = container.fan_home_service
+    app.state.copilot_service = container.copilot_service
 
     # Wire event bus → WebSocket fan-out, Audit, Analytics
     wire_eventbus(container.event_bus)

@@ -1,5 +1,4 @@
 import logging
-import json
 from src.platform.eventbus.bus import DomainEvent, EventBus
 
 logger = logging.getLogger(__name__)

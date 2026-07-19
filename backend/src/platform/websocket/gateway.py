@@ -110,9 +110,11 @@ async def websocket_endpoint(ws: WebSocket) -> None:
         return
     auth_service = ws.app.state.auth_service
     try:
-        user = auth_service.current_user(token)
-    except Exception as e:
-        print(f"WebSocket Auth Error: {e}")
+        # Validate the token (raises on invalid/expired); the identity itself is
+        # not needed further, so the return value is intentionally discarded.
+        auth_service.current_user(token)
+    except Exception as exc:  # noqa: BLE001 — any auth failure closes the socket
+        logger.info("WebSocket auth rejected: %s", exc.__class__.__name__)
         await ws.close(code=1008)
         return
 

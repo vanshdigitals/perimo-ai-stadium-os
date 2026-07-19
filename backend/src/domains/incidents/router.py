@@ -12,10 +12,13 @@ from src.domains.incidents.schema import (
     UpdateIncidentRequest,
 )
 from src.domains.incidents.service import IncidentService
-from src.security.auth.dependencies import require_user
-from src.security.auth.schemas import UserPublic
+from src.security.auth.dependencies import require_role, require_user
+from src.security.auth.schemas import UserPublic, UserRole
 
 router = APIRouter(prefix="/incidents", tags=["incidents"])
+
+# Incident write-ops (assign/escalate) are restricted to operational roles.
+require_operator = require_role(UserRole.admin, UserRole.staff)
 
 
 def get_incident_service(request: Request) -> IncidentService:
@@ -61,7 +64,7 @@ async def update_incident(
 async def assign_incident(
     incident_id: str,
     body: AssignIncidentRequest,
-    _user: UserPublic = Depends(require_user),
+    _user: UserPublic = Depends(require_operator),
     service: IncidentService = Depends(get_incident_service),
 ) -> Incident:
     return service.assign(incident_id, body.assigned)
@@ -70,7 +73,7 @@ async def assign_incident(
 @router.post("/{incident_id}/escalate", response_model=Incident)
 async def escalate_incident(
     incident_id: str,
-    _user: UserPublic = Depends(require_user),
+    _user: UserPublic = Depends(require_operator),
     service: IncidentService = Depends(get_incident_service),
 ) -> Incident:
     return service.escalate(incident_id)

@@ -1,4 +1,3 @@
-from typing import Optional
 from datetime import datetime, timezone
 from src.domains.fan.schema import HomeOverview, Greeting, WeatherInfo, TicketPreview, TicketSeat, TicketGate, StatusInfo, QuickAction, Recommendation, ScheduleItem
 

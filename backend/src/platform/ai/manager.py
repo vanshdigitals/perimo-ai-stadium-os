@@ -3,7 +3,6 @@ import logging
 import time
 from typing import Any, Callable, Coroutine
 from enum import Enum
-from pydantic import BaseModel
 from src.config.settings import get_settings
 
 logger = logging.getLogger(__name__)

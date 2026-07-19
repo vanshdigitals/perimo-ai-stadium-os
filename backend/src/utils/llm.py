@@ -11,7 +11,6 @@ Design principles:
 
 from __future__ import annotations
 
-import asyncio
 from abc import ABC, abstractmethod
 
 from src.config.settings import Settings
