@@ -16,7 +16,7 @@ from src.security.auth.tokens import (
     mint_refresh_token,
 )
 
-_S = Settings(jwt_secret="unit-test-secret", gemini_api_key=None)
+_S = Settings(jwt_secret="unit-test-secret-must-be-32-bytes-long-for-hs256", gemini_api_key=None)
 
 
 def test_access_token_roundtrip_carries_role():
@@ -61,7 +61,7 @@ def test_tampered_signature_raises_token_invalid():
 
 
 def test_token_signed_with_other_secret_rejected():
-    other = mint_access_token(Settings(jwt_secret="different", gemini_api_key=None), user_id="u1", role="admin")
+    other = mint_access_token(Settings(jwt_secret="different-secret-must-be-32-bytes-long", gemini_api_key=None), user_id="u1", role="admin")
     with pytest.raises(AuthenticationError):
         decode_access_token(_S, other)
 
@@ -75,7 +75,7 @@ def test_garbage_token_rejected():
 def test_me_rejects_expired_token(client):
     expired = jwt.encode(
         {"sub": "usr_admin", "type": "access", "iat": int(time.time()) - 100, "exp": int(time.time()) - 10},
-        "test",  # secret irrelevant — expiry checked first is fine; app uses its own secret
+        "test-must-be-32-bytes-long-for-hs256",  # secret irrelevant — expiry checked first is fine; app uses its own secret
         algorithm="HS256",
     )
     res = client.get("/v1/auth/me", headers={"Authorization": f"Bearer {expired}"})

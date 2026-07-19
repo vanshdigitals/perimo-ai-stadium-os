@@ -16,7 +16,7 @@ def _client() -> TestClient:
         create_app(
             Settings(
                 gemini_api_key=None,
-                jwt_secret="test-secret",
+                jwt_secret="test-secret-must-be-32-bytes-long-for-hs256",
                 seed_admin_email=_EMAIL,
                 seed_admin_password=_PASSWORD,
                 allowed_origins=["http://testserver"],

@@ -57,7 +57,7 @@ class Settings(BaseSettings):
 
     # --- Authentication (JWT) ---
     jwt_secret: str = Field(
-        default="dev-insecure-change-me",
+        default="dev-insecure-change-me-to-a-32-byte-secret",
         description="HMAC signing secret for access/refresh tokens. MUST be overridden in prod.",
     )
     jwt_algorithm: str = Field(default="HS256")
